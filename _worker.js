@@ -1,6 +1,6 @@
 // _worker.js
 import { connect } from "cloudflare:sockets";
-let password = 'auto';
+let password = 'rx';
 let proxyIP = '';
 // The user name and password do not contain special characters
 // Setting the address will ignore proxyIP
@@ -9,20 +9,51 @@ let socks5Address = '';
 
 let addresses = [
 	//当sub为空时启用本地优选域名/优选IP，若不带端口号 TLS默认端口为443，#号后为备注别名
-	'cf.090227.xyz:443#加入我的频道t.me/CMLiussss解锁更多优选节点',
-	'time.is#你可以只放域名 如下',
+	'cloudflare.cfgo.cc#优选官方线路',
+	'rx.cf.090227.xyz#===下面是自己添加===',
+	'cf.090227.xyz#三网自适应分流官方优选',
+	'ct.090227.xyz#电信官方优选',
+	'cmcc.090227.xyz#移动官方优选',
+	'shopify.com',
+	'time.is',
+	'icook.hk',
+	'icook.tw',
+	'ip.sb',
+	'japan.com',
+	'malaysia.com',
+	'russia.com',
+	'singapore.com',
+	'skk.moe',
 	'www.visa.com.sg',
-	'skk.moe#也可以放域名带端口 如下',
-	'www.wto.org:8443',
-	'www.csgo.com:2087#节点名放在井号之后即可',
-	'icook.hk#若不带端口号默认端口为443',
-	'104.17.152.41#IP也可以',
-	'[2606:4700:e7:25:4b9:f8f8:9bfb:774a]#IPv6也OK',
+	'www.visa.com.hk',
+	'www.visa.com.tw',
+	'www.visa.co.jp',
+	'www.visakorea.com',
+	'www.gco.gov.qa',
+	'www.gov.se',
+	'www.gov.ua#下一行开始：第三方维护的优选官方域名（未备注出处的为未知）',
+	'cfip.xxxxxxxx.tk#OTC提供维护官方优选',
+	'bestcf.onecf.eu.org#Mingyu提供维护官方优选',
+	'cf.zhetengsha.eu.org#小一提供维护官方优选',
+	'acjp2.cloudflarest.link#KJKKK维护官方优选',
+	'achk.cloudflarest.link#KJKKK维护官方优选',
+	'xn--b6gac.eu.org',
+	'yx.887141.xyz',
+	'8.889288.xyz',
+	'cfip.1323123.xyz',
+	'cf.515188.xyz',
+	'cf-st.annoy.eu.org',
+	'cf.0sm.com',
+	'cf.877771.xyz',
+	'cf.345673.xyz',
+	'bestproxy.onecf.eu.org#Mingyu提供维护反代优选',
+	'proxy.xxxxxxxx.tk#OTC提供维护反代优选',
 ];
 
 let sub = ''; 
 let subconverter = 'SUBAPI.fxxk.dedyn.io';// clash订阅转换后端，目前使用CM的订阅转换功能。自带虚假节点信息防泄露
-let subconfig = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini.ini"; //订阅配置文件
+let subconfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/clashConfig.ini"; //订阅配置文件
+//let subconfig = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini.ini"; //原订阅配置文件
 let subProtocol = 'https';
 let RproxyIP = 'false';
 
