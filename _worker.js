@@ -59,8 +59,8 @@ let RproxyIP = 'false';
 
 // 设置优选地址api接口
 let addressesapi = [
-	'https://raw.githubusercontent.com/rxsweet/CM_Vmess/main/addressesapi.txt',//自用更新ip
-	'https://raw.githubusercontent.com/rxsweet/CM_Vmess/main/addressesapi_自用扫描.txt',//自用扫描IP
+	'https://raw.githubusercontent.com/rxsweet/CM_Trojan/main/addressesapi.txt',//自用更新ip
+	'https://raw.githubusercontent.com/rxsweet/CM_Trojan/main/addressesapi_自用扫描.txt',//自用扫描IP
 	//'https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesapi.txt', //可参考内容格式 自行搭建。
 	//'https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesipv6api.txt', //IPv6优选内容格式 自行搭建。
 ];
