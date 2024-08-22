@@ -28,7 +28,7 @@ jobs:
       - name: 执行任务 -update IP
         run: |
           wget -O addressesapi_自用扫描.txt https://raw.githubusercontent.com/rxsweet/CM_Vmess/main/addressesapi_自用扫描.txt
-		  wget -O addressesapi.txt https://raw.githubusercontent.com/rxsweet/CM_Vmess/main/addressesapi.txt
+          wget -O addressesapi.txt https://raw.githubusercontent.com/rxsweet/CM_Vmess/main/addressesapi.txt
       - name: Commit
         id: commit
         continue-on-error: true
