@@ -57,7 +57,9 @@ let subconfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/
 let subProtocol = 'https';
 let RproxyIP = 'false';
 
-let addressesapi = [];
+// 设置优选地址api接口
+let addressesapi = ['https://raw.githubusercontent.com/rxsweet/CM_Vmess/main/addressesapi.txt',];//自用ip地址
+
 let addressescsv = [];
 let DLS = 8;
 
