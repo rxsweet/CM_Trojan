@@ -36,7 +36,7 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
           git add ./addressesapi.txt
-		  git add ./addressesapi_自用扫描.txt
+          git add ./addressesapi_自用扫描.txt
           git commit -m "$(date '+%Y-%m-%d %H:%M:%S') update IP done"
           git pull --rebase
       - name: 推送更改
