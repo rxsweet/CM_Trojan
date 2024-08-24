@@ -70,7 +70,7 @@ let addresses = [
 
 let sub = ''; 
 let subconverter = 'SUBAPI.fxxk.dedyn.io';// clash订阅转换后端，目前使用CM的订阅转换功能。自带虚假节点信息防泄露
-let subconfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfclash.ini"; //订阅配置文件
+let subconfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClash.ini"; //订阅配置文件
 //let subconfig = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini.ini"; //原订阅配置文件
 let subProtocol = 'https';
 let RproxyIP = 'false';
