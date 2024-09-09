@@ -1,6 +1,6 @@
 // _worker.src.js
 import { connect } from "cloudflare:sockets";
-let password = 'auto';
+let password = 'rx';
 let proxyIP = '';
 // The user name and password do not contain special characters
 // Setting the address will ignore proxyIP
@@ -8,25 +8,22 @@ let proxyIP = '';
 let socks5Address = '';
 
 let addresses = [
-	//当sub为空时启用本地优选域名/优选IP，若不带端口号 TLS默认端口为443，#号后为备注别名
-	'12315.cf.090227.xyz:443#加入我的频道t.me/CMLiussss解锁更多优选节点',
-	'visa.cn#你可以只放域名 如下',
-	'www.visa.com.sg',
-	'time.is#也可以放域名带端口 如下',
-	'www.wto.org:8443',
-	'chatgpt.com:2087#节点名放在井号之后即可',
-	'icook.hk#若不带端口号默认端口为443',
-	'104.17.152.41#IP也可以',
-	'[2606:4700:e7:25:4b9:f8f8:9bfb:774a]#IPv6也OK'
+	'rxrx.cf.090227.xyz#自改域名',
 ];
 
 let sub = ''; 
 let subconverter = 'SUBAPI.fxxk.dedyn.io';// clash订阅转换后端，目前使用CM的订阅转换功能。自带虚假节点信息防泄露
-let subconfig = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini.ini"; //订阅配置文件
+let subconfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClash.ini"; //订阅配置文件
 let subProtocol = 'https';
 let RproxyIP = 'false';
 
-let addressesapi = [];
+let addressesapi = [
+	'https://raw.githubusercontent.com/rxsweet/CM_Vmess/main/addressesapi.txt',//自用更新ip
+	'https://raw.githubusercontent.com/rxsweet/CM_Vmess/main/addressesapi_自用扫描.txt',//自用扫描IP
+	'https://raw.githubusercontent.com/rxsweet/CM_Vmess/main/goodDomain.txt',//自用域名
+	//'https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesapi.txt', //可参考内容格式 自行搭建。
+	//'https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesipv6api.txt', //IPv6优选内容格式 自行搭建。
+];
 let addressescsv = [];
 let DLS = 8;
 
