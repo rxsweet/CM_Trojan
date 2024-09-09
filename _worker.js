@@ -14,14 +14,14 @@ let addresses = [
 let sub = ''; 
 let subconverter = 'SUBAPI.fxxk.dedyn.io';// clash订阅转换后端，目前使用CM的订阅转换功能。自带虚假节点信息防泄露
 //let subconfig = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini.ini"; //订阅配置文件
-let subconfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClash.ini"; //订阅配置文件
+let subconfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClashConfig.ini"; //订阅配置文件
 let subProtocol = 'https';
 let RproxyIP = 'false';
 
 let addressesapi = [
 	'https://raw.githubusercontent.com/rxsweet/CM_Vmess/main/addressesapi.txt',//自用更新ip
 	'https://raw.githubusercontent.com/rxsweet/CM_Vmess/main/addressesapi_自用扫描.txt',//自用扫描IP
-	//'https://raw.githubusercontent.com/rxsweet/CM_Vmess/main/goodDomain.txt',//自用域名
+	'https://raw.githubusercontent.com/rxsweet/CM_Vmess/main/goodDomain.txt',//自用域名
 	//'https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesapi.txt', //可参考内容格式 自行搭建。
 	//'https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesipv6api.txt', //IPv6优选内容格式 自行搭建。
 ];
