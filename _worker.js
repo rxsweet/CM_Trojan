@@ -1,4 +1,5 @@
 // _worker.js
+
 import { connect } from "cloudflare:sockets";
 let password = 'rx';
 let proxyIP = '';
