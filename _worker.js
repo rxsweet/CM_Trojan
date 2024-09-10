@@ -3,6 +3,9 @@
 
 let mytoken= ['rx'];//快速订阅访问入口, 留空则不启动快速订阅
 
+let setHost = "v2.rxsub.eu.org";
+let setPassword = "ac3794a5-e9c3-45af-a9bc-118f67eb4fed";
+
 // 设置优选地址，不带端口号默认443，TLS订阅生成
 let addresses = [
 	'rxrx.cf.090227.xyz#自改域名',
@@ -274,8 +277,11 @@ export default {
 			if (env.HOST) {
 				const hosts = await ADD(env.HOST);
 				host = hosts[Math.floor(Math.random() * hosts.length)];
+			}else{
+				host = setHost;
 			}
-			pw = env.PASSWORD || "null";
+			#pw = env.PASSWORD || "null";
+			pw = env.PASSWORD || setPassword;
 			path = env.PATH || "/?ed=2560";
 			sni = env.SNI || host;
 			epeius = env.ED || epeius;
