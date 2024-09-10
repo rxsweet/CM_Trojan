@@ -1,6 +1,6 @@
 // _worker.js
 import { connect } from "cloudflare:sockets";
-let password = 'auto';
+let password = 'rx';
 let proxyIP = '';
 // The user name and password do not contain special characters
 // Setting the address will ignore proxyIP
@@ -26,7 +26,7 @@ let addressesapi = [
 	//'https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesapi.txt', //可参考内容格式 自行搭建。
 	//'https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesipv6api.txt', //IPv6优选内容格式 自行搭建。
 ];
-
+let addressesnotls = [];
 let addressescsv = [];
 let DLS = 8;
 
