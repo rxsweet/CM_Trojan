@@ -280,7 +280,7 @@ export default {
 			}else{
 				host = setHost;
 			}
-			#pw = env.PASSWORD || "null";
+			//pw = env.PASSWORD || "null";
 			pw = env.PASSWORD || setPassword;
 			path = env.PATH || "/?ed=2560";
 			sni = env.SNI || host;
