@@ -1,3 +1,4 @@
+/*Obfuscate-rx*/
 let id = atob('ZWM4NzJkOGYtNzJiMC00YTA0LWI2MTItMDMyN2Q4NWUxOGVk');
 
 let pnum = atob('NDQz');
@@ -28,7 +29,7 @@ let ghName = atob('aHR0cHM6Ly9naXRodWIuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVs');
 let bName = atob('aHR0cHM6Ly9hbWNsdWJzcy5jb20=');
 let pName = '5pWw5a2X5aWX5Yip';
 
-/*Obfuscate-cmliu*/
+
 import { connect } from 'cloudflare:sockets';
 
 if (!isValidUserId(id)) {
