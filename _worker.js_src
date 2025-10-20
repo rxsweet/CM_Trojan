@@ -12,7 +12,7 @@ let paddrs = [];
 let paddr = paddrs[Math.floor(Math.random() * paddrs.length)];
 let pDomain = [];
 
-let p64 = true;
+let p64 = false;
 let p64DnUrl = atob('aHR0cHM6Ly8xLjEuMS4xL2Rucy1xdWVyeQ==');
 let p64Prefix = atob('MjYwMjpmYzU5OmIwOjY0Ojo=');
 let p64Domain = [];
