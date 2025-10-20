@@ -7,7 +7,6 @@ let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/
 let ipLocal = [];
 
 let paddr;
-
 let s5 = '';
 let socks5Enable = false;
 let parsedSocks5 = {};
