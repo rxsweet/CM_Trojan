@@ -1,3 +1,4 @@
+
 /*Obfuscate-rx*/
 let id = 'f223e098-393f-48bd-8331-5770a5bd5517';
 let pnum = '443';
@@ -7,12 +8,14 @@ let tgName = '222';
 let ghName = '333';
 let bName = '444';
 let pName = '555';
-
 let paddrs = [];
+
+
+
 let paddr = paddrs[Math.floor(Math.random() * paddrs.length)];
 let pDomain = [];
 
-let p64 = false;
+let p64 = true;
 let p64DnUrl = atob('aHR0cHM6Ly8xLjEuMS4xL2Rucy1xdWVyeQ==');
 let p64Prefix = atob('MjYwMjpmYzU5OmIwOjY0Ojo=');
 let p64Domain = [];
@@ -25,6 +28,7 @@ let durl = atob('aHR0cHM6Ly9za3kucmV0aGlua2Rucy5jb20vMTotUGZfX19fXzlfOEFfQU1BSWd
 
 const dataTypeTr = 'EBMbCxUX';
 let enableLog = false;
+
 
 
 
@@ -94,7 +98,7 @@ export default {
                     return set_kv_data(request, env);
                 }
                 default: {
-                    return await login(request);
+                    return Response.redirect(new URL('/', request.url));
                 }
             }
         } catch (err) {
