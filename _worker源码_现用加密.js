@@ -62,7 +62,7 @@ let enableLog = false;
 
 // ======= 主逻辑函数（共用） =======
 export default {
-    function mainHandler({ req, url, headers, res, env }) {
+    async mainHandler({ req, url, headers, res, env }) {
         const { ENABLE_LOG, ID, UUID, HOST, SOCKS5, IP_URL, PROXYIP, NAT64, NAT64_PREFIX, HOST_REMARK, PROT_TYPE, RANDOW_NUM, SUB_CONFIG, SUB_CONVERTER } = env || {};
 
         const rawHost = headers.get('host') || headers.get('Host') || 'localhost';
