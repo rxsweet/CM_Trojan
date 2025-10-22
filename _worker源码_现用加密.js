@@ -1,10 +1,17 @@
 /*Obfuscate-rx*/
 let id = 'rx';
-let uuid = 'uuid111';
-let host = 'host111';
-let ipUrl = 'https://xxx';
-let subConfig = "https://yyy";
+let uuid  = 'f223e098-393f-48bd-8331-5770a5bd5517';
+let host = 'cf-node-trojan-vless.sweetrx.eu.org';
+let ipUrl = 'https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt';
+let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClashConfig_cn.ini";
 let ipLocal = [];
+let fileName = 'MDAw';
+let ytName = '111';
+let tgName = '222';
+let ghName = '333';
+let bName = '444';
+let pName = '555';
+//上面是自己修改的部分
 
 let paddr;
 let s5 = '';
@@ -44,12 +51,7 @@ const protTypeBase64Tro = 'ZEhKdmFtRnU=';
 const httpPattern = /^http(s)?:\/\/.+/;
 let network = 'ws';
 let projectName = base64Decode('YW1jbHVicw==');
-let fileName = '5pWw5a2X5aWX5Yip';
-let ytName = base64Decode('aHR0cHM6Ly95b3V0dWJlLmNvbS9AYW1fY2x1YnM/c3ViX2NvbmZpcm1hdGlvbj0x');
-let tgName = base64Decode('aHR0cHM6Ly90Lm1lL2FtX2NsdWJz');
-let ghName = base64Decode('aHR0cHM6Ly9naXRodWIuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVs');
-let bName = base64Decode('aHR0cHM6Ly9hbWNsdWJzcy5jb20=');
-let pName = '5pWw5a2X5aWX5Yip';
+
 let hostRemark = false;
 let enableLog = false;
 
