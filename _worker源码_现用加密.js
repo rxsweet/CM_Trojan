@@ -1,4 +1,5 @@
 /*Obfuscate-rx*/
+//网址后面添加读取下载：?sub  ?base64  ?clash  ?singbox   ?sub&IP_URL=https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt
 // @ts-ignore
 import { connect } from 'cloudflare:sockets';
 
