@@ -4,7 +4,8 @@
  - https://toolonline.net/js-obfuscator
 
 简单加密使用上面网址，
-复杂加密使用actions
+复杂加密使用actions，
+优先使用byjoey加密
 
 ## _worker源码新版_sub.js - am的订阅器
 1.删掉下面几行赋值的原内容，改成
