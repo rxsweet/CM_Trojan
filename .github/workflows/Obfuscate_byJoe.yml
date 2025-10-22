@@ -5,7 +5,7 @@ name: byJoey Obfuscate 现用
 on:
   push:
     paths:
-      - '_worker源码_byJoe加密.js'
+      - '_worker_src_byjoey.js'
   workflow_dispatch:
   #schedule:
     #- cron: '0 * * * *'
@@ -33,8 +33,8 @@ jobs:
             const fs = require('fs');
             const path = require('path');
             
-            const sourceFileName = '_worker源码_byJoe加密.js';
-            const outputFileName = '_worker源码_byJoe加密_Ob.js';
+            const sourceFileName = '_worker_src_byjoey.js';
+            const outputFileName = '_worker_src_byjoey_Ob.js';
             const sourceFilePath = path.join(process.cwd(), sourceFileName);
 
             if (!fs.existsSync(sourceFilePath)) {
@@ -79,7 +79,7 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add '_worker源码_byJoe加密_Ob.js'
+          git add '_worker_src_byjoey_Ob.js'
           if git diff --staged --quiet; then
             echo "No changes to commit, the obfuscated file is already up-to-date."
           else
