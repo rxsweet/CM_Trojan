@@ -28,7 +28,9 @@ let dohURL = atob('aHR0cHM6Ly9za3kucmV0aGlua2Rucy5jb20vMTotUGZfX19fXzlfOEFfQU1BS
 
 // Preferred address API interface
 let ipUrl = ['https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt',];
-let ipUrlTxt = [];
+let ipUrlTxt = [
+	atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVsL21haW4vaXB2NC50eHQ=')
+];
 let ipUrlCsv = [
 	// atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVsL21haW4vaXB2NC5jc3Y=')
 ];
