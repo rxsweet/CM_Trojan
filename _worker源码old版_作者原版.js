@@ -1,5 +1,5 @@
 //原版https://github.com/amclubs/am-cf-trojan/blob/fc7fbce574a3e19187e5b8f864e0483d4a9db6d9/_worker.src.js
-//自己修改现用版：_worker.js_src_源码old版_单url
+//自己修改现用版：_worker源码old版_单url.js
 
 /*Obfuscate-rx*/
 // @ts-ignore
