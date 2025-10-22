@@ -1,23 +1,15 @@
 /*Obfuscate-rx*/
 let id = 'rx';
-let uuid  = 'f223e098-393f-48bd-8331-5770a5bd5517';
-let host = 'cf-node-trojan-vless.sweetrx.eu.org';
-let ipUrl = 'https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt';
-let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClashConfig_cn.ini";
+let uuid = 'uuid111';
+let host = 'host111';
+let ipUrl = 'https://xxx';
+let subConfig = "https://yyy";
 let ipLocal = [];
-let fileName = 'MDAw';
-let ytName = '111';
-let tgName = '222';
-let ghName = '333';
-let bName = '444';
-let pName = '555';
 
 let paddr;
 let s5 = '';
 let socks5Enable = false;
 let parsedSocks5 = {};
-
-
 
 const defaultIpUrlTxt = base64Decode('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVsL21haW4vaXB2NC50eHQ=');
 let randomNum = 25;
@@ -43,127 +35,145 @@ let download = Math.floor(Math.random() * 1099511627776);
 let upload = download;
 let expire = Math.floor(timestamp / 1000);
 
-//let nat64 = true;
 let nat64 = false;
-
 let nat64Prefix;
-let nat64Prefixs = [
-    '2602:fc59:b0:64::'
-];
+let nat64Prefixs = ['2602:fc59:b0:64::'];
 
 const protTypeBase64 = 'ZG14bGMzTT0=';
 const protTypeBase64Tro = 'ZEhKdmFtRnU=';
 const httpPattern = /^http(s)?:\/\/.+/;
 let network = 'ws';
 let projectName = base64Decode('YW1jbHVicw==');
-
+let fileName = '5pWw5a2X5aWX5Yip';
+let ytName = base64Decode('aHR0cHM6Ly95b3V0dWJlLmNvbS9AYW1fY2x1YnM/c3ViX2NvbmZpcm1hdGlvbj0x');
+let tgName = base64Decode('aHR0cHM6Ly90Lm1lL2FtX2NsdWJz');
+let ghName = base64Decode('aHR0cHM6Ly9naXRodWIuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVs');
+let bName = base64Decode('aHR0cHM6Ly9hbWNsdWJzcy5jb20=');
+let pName = '5pWw5a2X5aWX5Yip';
 let hostRemark = false;
 let enableLog = false;
 
-// ======= 主逻辑函数（共用） =======
+// 定义 subParams 和其他全局变量
+let subParams = ['sub', 'base64', 'b64', 'clash', 'singbox', 'sb'];
+let portSet_http = new Set([80, 8080, 8880, 2052, 2086, 2095, 2082]);
+let portSet_https = new Set([443, 8443, 2053, 2096, 2087, 2083]);
+
+// Cloudflare Workers 入口点
 export default {
-    async mainHandler({ req, url, headers, res, env }) {
-        const { ENABLE_LOG, ID, UUID, HOST, SOCKS5, IP_URL, PROXYIP, NAT64, NAT64_PREFIX, HOST_REMARK, PROT_TYPE, RANDOW_NUM, SUB_CONFIG, SUB_CONVERTER } = env || {};
+    async fetch(request, env, ctx) {
+        try {
+            const url = new URL(request.url);
+            const headers = request.headers;
+            const rawHost = headers.get('host') || headers.get('Host') || 'localhost';
+            const userAgent = headers.get('User-Agent') || '';
+            
+            enableLog = url.searchParams.get('ENABLE_LOG') || getEnvVar('ENABLE_LOG', env) || enableLog;
+            log(`[mainHandler]-->rawHost: ${rawHost}`);
+            log(`[mainHandler]-->id: ${id} uuid: ${uuid} host: ${host}`);
 
-        const rawHost = headers.get('host') || headers.get('Host') || 'localhost';
-        const userAgent = headers.get('User-Agent') || '';
-        log(`[mainHandler]-->rawHost: ${rawHost}`);
-        enableLog = url.searchParams.get('ENABLE_LOG') || getEnvVar('ENABLE_LOG', env) || enableLog;
+            // 处理环境变量和查询参数
+            const SOCKS5 = getEnvVar('SOCKS5', env);
+            s5 = url.searchParams.get('SOCKS5') || SOCKS5 || s5;
+            parsedSocks5 = await parseSocks5FromUrl(s5, url);
+            if (parsedSocks5) socks5Enable = true;
 
-        //id = getEnvVar('ID', env) || ID || id;
-        //uuid = url.searchParams.get('UUID') || getEnvVar('UUID', env) || UUID;
-        //host = url.searchParams.get('HOST') || getEnvVar('HOST', env) || HOST;
-        log(`[mainHandler]-->id: ${id} uuid: ${uuid} host: ${host}`);
-
-        s5 = url.searchParams.get('SOCKS5') || getEnvVar('SOCKS5', env) || SOCKS5 || s5;
-        parsedSocks5 = await parseSocks5FromUrl(s5, url);
-        if (parsedSocks5) socks5Enable = true;
-
-        const newCsvUrls = [], newTxtUrls = [];
-        let ip_url = url.searchParams.get('IP_URL') || getEnvVar('IP_URL', env) || IP_URL;
-        if (ip_url) {
-            const result = await parseIpUrl(ip_url);
-            ipUrlCsv = result.ipUrlCsvResult;
-            ipUrlTxt = result.ipUrlTxtResult;
-        }
-
-        const proxyIPUrl = url.searchParams.get('PROXYIP') || getEnvVar('PROXYIP', env) || PROXYIP;
-        if (proxyIPUrl) {
-            if (httpPattern.test(proxyIPUrl)) {
-                const proxyIpTxt = await addIpText(proxyIPUrl);
-                let ipUrlTxtAndCsv;
-                if (proxyIPUrl.endsWith('.csv')) {
-                    ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, null, proxyIpTxt);
-                } else {
-                    ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, proxyIpTxt, null);
-                }
-                const uniqueIpTxt = [...new Set([...ipUrlTxtAndCsv.txt, ...ipUrlTxtAndCsv.csv])];
-                paddr = uniqueIpTxt[Math.floor(Math.random() * uniqueIpTxt.length)];
-            } else {
-                const proxyIPs = await addIpText(proxyIPUrl);
-                paddr = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
+            const newCsvUrls = [], newTxtUrls = [];
+            const IP_URL = getEnvVar('IP_URL', env);
+            let ip_url = url.searchParams.get('IP_URL') || IP_URL || ipUrl;
+            if (ip_url) {
+                const result = await parseIpUrl(ip_url);
+                ipUrlCsv = result.ipUrlCsvResult;
+                ipUrlTxt = result.ipUrlTxtResult;
             }
-        }
 
-        nat64 = url.searchParams.get('NAT64') || getEnvVar('NAT64', env) || NAT64 || nat64;
-        const nat64PrefixUrl = url.searchParams.get('NAT64_PREFIX') || getEnvVar('NAT64_PREFIX', env) || NAT64_PREFIX;
-        if (nat64PrefixUrl) {
-            if (httpPattern.test(nat64PrefixUrl)) {
-                const proxyIpTxt = await addIpText(nat64PrefixUrl);
-                let ipUrlTxtAndCsv;
-                if (nat64PrefixUrl.endsWith('.csv')) {
-                    ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, null, proxyIpTxt);
+            const PROXYIP = getEnvVar('PROXYIP', env);
+            const proxyIPUrl = url.searchParams.get('PROXYIP') || PROXYIP;
+            if (proxyIPUrl) {
+                if (httpPattern.test(proxyIPUrl)) {
+                    const proxyIpTxt = await addIpText(proxyIPUrl);
+                    let ipUrlTxtAndCsv;
+                    if (proxyIPUrl.endsWith('.csv')) {
+                        ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, null, proxyIpTxt);
+                    } else {
+                        ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, proxyIpTxt, null);
+                    }
+                    const uniqueIpTxt = [...new Set([...ipUrlTxtAndCsv.txt, ...ipUrlTxtAndCsv.csv])];
+                    paddr = uniqueIpTxt[Math.floor(Math.random() * uniqueIpTxt.length)];
                 } else {
-                    ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, proxyIpTxt, null);
+                    const proxyIPs = await addIpText(proxyIPUrl);
+                    paddr = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
                 }
-                const uniqueIpTxt = [...new Set([...ipUrlTxtAndCsv.txt, ...ipUrlTxtAndCsv.csv])];
-                nat64Prefix = uniqueIpTxt[Math.floor(Math.random() * uniqueIpTxt.length)];
-            } else {
-                nat64Prefixs = await addIpText(nat64PrefixUrl);
-                nat64Prefix = nat64Prefixs[Math.floor(Math.random() * nat64Prefixs.length)];
             }
-        }
 
-        hostRemark = url.searchParams.get('HOST_REMARK') || getEnvVar('HOST_REMARK', env) || HOST_REMARK || hostRemark;
-        let protType = url.searchParams.get('PROT_TYPE') || getEnvVar('PROT_TYPE', env) || PROT_TYPE;
-        if (protType) protType = protType.toLowerCase();
-        randomNum = url.searchParams.get('RANDOW_NUM') || getEnvVar('RANDOW_NUM', env) || RANDOW_NUM || randomNum;
-        log(`[handler]-->randomNum: ${randomNum}`);
+            const NAT64 = getEnvVar('NAT64', env);
+            nat64 = url.searchParams.get('NAT64') || NAT64 || nat64;
+            const NAT64_PREFIX = getEnvVar('NAT64_PREFIX', env);
+            const nat64PrefixUrl = url.searchParams.get('NAT64_PREFIX') || NAT64_PREFIX;
+            if (nat64PrefixUrl) {
+                if (httpPattern.test(nat64PrefixUrl)) {
+                    const proxyIpTxt = await addIpText(nat64PrefixUrl);
+                    let ipUrlTxtAndCsv;
+                    if (nat64PrefixUrl.endsWith('.csv')) {
+                        ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, null, proxyIpTxt);
+                    } else {
+                        ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, proxyIpTxt, null);
+                    }
+                    const uniqueIpTxt = [...new Set([...ipUrlTxtAndCsv.txt, ...ipUrlTxtAndCsv.csv])];
+                    nat64Prefix = uniqueIpTxt[Math.floor(Math.random() * uniqueIpTxt.length)];
+                } else {
+                    nat64Prefixs = await addIpText(nat64PrefixUrl);
+                    nat64Prefix = nat64Prefixs[Math.floor(Math.random() * nat64Prefixs.length)];
+                }
+            }
 
-        subConfig = getEnvVar('SUB_CONFIG', env) || SUB_CONFIG || subConfig;
-        subConverter = getEnvVar('SUB_CONVERTER', env) || SUB_CONVERTER || subConverter;
-        let subProtocol, subConverterWithoutProtocol;
-        if (subConverter.startsWith("http://") || subConverter.startsWith("https://")) {
-            [subProtocol, subConverterWithoutProtocol] = subConverter.split("://");
-        } else {
-            [subProtocol, subConverterWithoutProtocol] = [undefined, subConverter];
-        }
-        subConverter = subConverterWithoutProtocol;
+            const HOST_REMARK = getEnvVar('HOST_REMARK', env);
+            hostRemark = url.searchParams.get('HOST_REMARK') || HOST_REMARK || hostRemark;
+            const PROT_TYPE = getEnvVar('PROT_TYPE', env);
+            let protType = url.searchParams.get('PROT_TYPE') || PROT_TYPE;
+            if (protType) protType = protType.toLowerCase();
+            const RANDOW_NUM = getEnvVar('RANDOW_NUM', env);
+            randomNum = url.searchParams.get('RANDOW_NUM') || RANDOW_NUM || randomNum;
+            log(`[handler]-->randomNum: ${randomNum}`);
 
-        fakeUserId = await getFakeUserId(uuid);
-        fakeHostName = getFakeHostName(rawHost);
-        log(`[handler]-->fakeUserId: ${fakeUserId}`);
+            const SUB_CONFIG = getEnvVar('SUB_CONFIG', env);
+            subConfig = SUB_CONFIG || subConfig;
+            const SUB_CONVERTER = getEnvVar('SUB_CONVERTER', env);
+            subConverter = SUB_CONVERTER || subConverter;
+            let subProtocol, subConverterWithoutProtocol;
+            if (subConverter.startsWith("http://") || subConverter.startsWith("https://")) {
+                [subProtocol, subConverterWithoutProtocol] = subConverter.split("://");
+            } else {
+                [subProtocol, subConverterWithoutProtocol] = [undefined, subConverter];
+            }
+            subConverter = subConverterWithoutProtocol;
 
-        // ---------------- 路由 ----------------
-        if (url.pathname === "/login") {
-            const result = await login(req, env, res);
-            return result;
+            fakeUserId = await getFakeUserId(uuid);
+            fakeHostName = getFakeHostName(rawHost);
+            log(`[handler]-->fakeUserId: ${fakeUserId}`);
+
+            // ---------------- 路由 ----------------
+            if (url.pathname === "/login") {
+                const result = await login(request, env);
+                return result;
+            }
+            if (url.pathname === `/${id}/setting`) {
+                const html = await getSettingHtml(rawHost);
+                return sendResponse(html, userAgent);
+            }
+            if (url.pathname === `/${id}`) {
+                const html = await getConfig(rawHost, uuid, host, paddr, parsedSocks5, userAgent, url, null, nat64, hostRemark);
+                return sendResponse(html, userAgent);
+            }
+            if (url.pathname === `/${fakeUserId}`) {
+                const html = await getConfig(rawHost, uuid, host, paddr, parsedSocks5, 'CF-FAKE-UA', url, null, nat64, hostRemark);
+                return sendResponse(html, 'CF-FAKE-UA');
+            }
+            return login(request, env);
+            
+        } catch (error) {
+            return new Response(`Error: ${error.message}`, { status: 500 });
         }
-        if (url.pathname === `/${id}/setting`) {
-            const html = await getSettingHtml(rawHost);
-            return sendResponse(html, userAgent, res);
-        }
-        if (url.pathname === `/${id}`) {
-            const html = await getConfig(rawHost, uuid, host, paddr, parsedSocks5, userAgent, url, null, nat64, hostRemark);
-            return sendResponse(html, userAgent, res);
-        }
-        if (url.pathname === `/${fakeUserId}`) {
-            const html = await getConfig(rawHost, uuid, host, paddr, parsedSocks5, 'CF-FAKE-UA', url, null, nat64, hostRemark);
-            return sendResponse(html, 'CF-FAKE-UA', res);
-        }
-        return login(req, env, res);
     }
-
 };
 
 /** --------------------- main ------------------------------ */
@@ -171,82 +181,26 @@ function getEnvVar(key, env) {
     if (env && typeof env[key] !== 'undefined') {
         return env[key];
     }
-    if (typeof process !== 'undefined' && process.env && typeof process.env[key] !== 'undefined') {
-        return process.env[key];
-    }
     return undefined;
 }
 
 /** ---------------------Tools------------------------------ */
 function log(...args) {
-    if (!enableLog) {
-        return;
-    }
-    let prefix = '';
-    try {
-        // ✅ 判断 Cloudflare Worker 环境
-        if (typeof WebSocketPair !== 'undefined' && typeof addEventListener === 'function' && typeof caches !== 'undefined') {
-            prefix = '[CF]';
-        }
-        // ✅ 判断 Vercel / Node 环境
-        else if (typeof process !== 'undefined' && process.release?.name === 'node') {
-            prefix = '[VC]';
-        }
-        // ✅ 其他未知环境
-        else {
-            prefix = '[SYS]';
-        }
-    } catch (e) {
-        prefix = '[LOG]';
-    }
+    if (!enableLog) return;
     const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0];
-    console.log(`${prefix} ${timestamp} →`, ...args);
+    console.log(`[CF] ${timestamp} →`, ...args);
 }
 
 function errorLogs(err, extra = {}) {
-    let prefix = '';
-    try {
-        // 判断 Cloudflare Worker 环境
-        if (typeof WebSocketPair !== 'undefined' && typeof addEventListener === 'function' && typeof caches !== 'undefined') {
-            prefix = '[CF-ERR]';
-        }
-        // 判断 Vercel / Node.js 环境
-        else if (typeof process !== 'undefined' && process.release?.name === 'node') {
-            prefix = '[VC-ERR]';
-        }
-        else {
-            prefix = '[SYS-ERR]';
-        }
-    } catch {
-        prefix = '[ERR]';
-    }
-
     const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0];
     if (err instanceof Error) {
-        console.error(`${prefix} ${timestamp} →`, err.message, '\nStack:', err.stack, extra);
+        console.error(`[CF-ERR] ${timestamp} →`, err.message, '\nStack:', err.stack, extra);
     } else {
-        console.error(`${prefix} ${timestamp} →`, err, extra);
+        console.error(`[CF-ERR] ${timestamp} →`, err, extra);
     }
 }
 
-function getHeader(req, name) {
-    try {
-        if (!req || !req.headers) return '';
-        // Edge Headers 
-        if (typeof req.headers.get === 'function') {
-            const v = req.headers.get(name);
-            return (v === undefined || v === null) ? '' : String(v);
-        }
-        // Node.js headers 
-        const v2 = req.headers[name.toLowerCase()];
-        return (v2 === undefined || v2 === null) ? '' : String(v2);
-    } catch (e) {
-        errorLogs('getHeader error:', e);
-        return '';
-    }
-}
-
-function sendResponse(content, userAgent = '', res = null, status = 200) {
+function sendResponse(content, userAgent = '', status = 200) {
     if (!status || typeof status !== 'number') status = 200;
 
     const isMozilla = userAgent.toLowerCase().includes('mozilla');
@@ -261,29 +215,12 @@ function sendResponse(content, userAgent = '', res = null, status = 200) {
         headers["Content-Disposition"] = `attachment; filename=${fileNameAscii}; filename*=gbk''${fileNameAscii}`;
     }
 
-    // Node / Vercel Serverless
-    if (res) {
-        Object.entries(headers).forEach(([k, v]) => res.setHeader(k, v));
-        if (typeof res.status === 'function') return res.status(status).send(content);
-        if (typeof res.writeHead === 'function') {
-            res.writeHead(status, headers);
-            res.end(content);
-            return;
-        }
-    }
-
-    // Edge / CF Worker / Vercel Edge
-    if (typeof Response !== 'undefined') {
-        return new Response(content, { status, headers });
-    }
-
-    return content;
+    return new Response(content, { status, headers });
 }
 
 function base64Encode(input) {
     try {
-        return Buffer.from(input, 'utf-8').toString('base64');
-    } catch (e) {
+        // Cloudflare Workers 环境使用 btoa
         if (typeof btoa === 'function') {
             const utf8 = new TextEncoder().encode(input);
             let binary = '';
@@ -292,18 +229,22 @@ function base64Encode(input) {
         } else {
             throw new Error('Base64 encode not supported in this environment');
         }
+    } catch (e) {
+        console.error('Base64 encode error:', e);
+        return '';
     }
 }
 
 function base64Decode(input) {
-    if (typeof atob === 'function') {
-        // Edge Runtime 
-        return atob(input);
-    } else if (typeof Buffer === 'function') {
-        // Node.js
-        return Buffer.from(input, 'base64').toString('utf-8');
-    } else {
-        throw new Error('Base64 decode not supported in this environment');
+    try {
+        if (typeof atob === 'function') {
+            return atob(input);
+        } else {
+            throw new Error('Base64 decode not supported in this environment');
+        }
+    } catch (e) {
+        console.error('Base64 decode error:', e);
+        return '';
     }
 }
 
@@ -323,8 +264,8 @@ function getFileType(url) {
 }
 
 async function addIpText(envAdd) {
+    if (!envAdd) return [];
     var addText = envAdd.replace(/[	|"'\r\n]+/g, ',').replace(/,+/g, ',');
-    //log(addText);
     if (addText.charAt(0) == ',') {
         addText = addText.slice(1);
     }
@@ -332,7 +273,6 @@ async function addIpText(envAdd) {
         addText = addText.slice(0, addText.length - 1);
     }
     const add = addText.split(',');
-    // log(add);
     return add;
 }
 
@@ -360,7 +300,6 @@ function socks5Parser(socks5) {
         throw new Error('Invalid SOCKS address format: IPv6 addresses must be enclosed in brackets, e.g., [2001:db8::1]');
     }
 
-    //log(`socks5Parser-->: username ${username} \n password: ${password} \n hostname: ${hostname} \n port: ${port}`);
     return { username, password, hostname, port };
 }
 
@@ -394,7 +333,6 @@ async function parseSocks5FromUrl(socks5, url) {
 
 function getRandomItems(arr, count) {
     if (!Array.isArray(arr)) return [];
-
     const shuffled = [...arr].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
 }
@@ -410,6 +348,9 @@ async function getFakeUserId(userId) {
 }
 
 function getFakeHostName(host) {
+    if (!fakeHostName) {
+        fakeHostName = 'default-fake-host';
+    }
     if (host.includes(".pages.dev")) {
         return `${fakeHostName}.pages.dev`;
     } else if (host.includes(".workers.dev") || host.includes("notls") || noTLS === 'true') {
@@ -431,8 +372,12 @@ function revertFakeInfo(content, userId, hostName) {
 }
 
 function decodeBase64Utf8(str) {
-    const bytes = Uint8Array.from(atob(str), c => c.charCodeAt(0));
-    return new TextDecoder('utf-8').decode(bytes);
+    try {
+        const bytes = Uint8Array.from(atob(str), c => c.charCodeAt(0));
+        return new TextDecoder('utf-8').decode(bytes);
+    } catch (e) {
+        return str;
+    }
 }
 
 function xEn(plain, key) {
@@ -493,9 +438,7 @@ async function parseIpUrl(ip_url) {
 }
 
 /** ---------------------Get data------------------------------ */
-let subParams = ['sub', 'base64', 'b64', 'clash', 'singbox', 'sb'];
-let portSet_http = new Set([80, 8080, 8880, 2052, 2086, 2095, 2082]);
-let portSet_https = new Set([443, 8443, 2053, 2096, 2087, 2083]);
+// subParams 和其他全局变量已经在文件开头定义
 
 async function getConfig(rawHost, userId, host, proxyIP, parsedSocks5, userAgent, _url, protType, nat64, hostRemark) {
     log(`------------getConfig------------------`);
@@ -604,11 +547,9 @@ async function getConfigContent(rawHost, userAgent, _url, host, fakeHostName, fa
     const uniqueIpTxt = [...new Set([...ipUrlTxt, ...ipUrlCsv])];
     let responseBody;
     if (!protType) {
-        protType = doubleBase64Decode(protTypeBase64);
-        const responseBody1 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
         protType = doubleBase64Decode(protTypeBase64Tro);
         const responseBody2 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
-        responseBody = [responseBody1, responseBody2].join('\n');
+        responseBody = [responseBody2].join('\n');
     } else {
         responseBody = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, doubleBase64Decode(protTypeBase64), nat64, hostRemark);
         responseBody = [responseBody].join('\n');
@@ -811,43 +752,6 @@ async function getIpUrlTxt(urlTxts, num) {
     return newIpTxt;
 }
 
-async function getIpUrlTxtToArry(urlTxts) {
-    if (!urlTxts || urlTxts.length === 0) {
-        return [];
-    }
-    let ipTxt = "";
-    const controller = new AbortController();
-
-    const timeout = setTimeout(() => {
-        controller.abort();
-    }, 2000);
-
-    try {
-        const responses = await Promise.allSettled(urlTxts.map(apiUrl => fetch(apiUrl, {
-            method: 'GET',
-            headers: {
-                'Accept': 'text/html,application/xhtml+xml,application/xml;',
-                'User-Agent': projectName
-            },
-            signal: controller.signal
-        }).then(response => response.ok ? response.text() : Promise.reject())));
-        for (const response of responses) {
-            if (response.status === 'fulfilled') {
-                const content = await response.value;
-                ipTxt += content + '\n';
-            }
-        }
-    } catch (error) {
-        errorLogs(error);
-    } finally {
-        clearTimeout(timeout);
-    }
-
-    const newIpTxt = await addIpText(ipTxt);
-    log(`urlTxts: ${urlTxts} \n ipTxt: ${ipTxt} \n newIpTxt: ${newIpTxt} `);
-    return newIpTxt;
-}
-
 async function getIpUrlCsv(urlCsvs, tls) {
     if (!urlCsvs || urlCsvs.length === 0) {
         return [];
@@ -903,6 +807,9 @@ async function getIpUrlCsv(urlCsvs, tls) {
     log(`newAddressesCsv: ${newAddressesCsv} \n `);
     return newAddressesCsv;
 }
+
+// 其他函数（getConfigHtml, cleanLines, getSettingHtml, login, redirectToId, renderPage）保持不变
+// 这些函数在之前的代码中已经完整定义
 
 function getConfigHtml(host, remark, v2, clash) {
     log(`------------getConfigHtml------------------`);
@@ -1071,7 +978,6 @@ function cleanLines(str) {
         })
         .join('\n');
 }
-
 
 /** -------------------Home page-------------------------------- */
 async function getSettingHtml(host) {
@@ -1427,8 +1333,8 @@ async function getSettingHtml(host) {
     `;
 }
 
-async function login(req, env, res = null) {
-    const method = req.method || (req instanceof Request ? req.method : 'GET');
+async function login(request, env) {
+    const method = request.method;
 
     const renderLoginPage = (heading, status = 200) => {
         const html = renderPage({
@@ -1443,16 +1349,6 @@ async function login(req, env, res = null) {
             `,
             ytName, tgName, ghName, bName
         });
-        if (res && typeof res.setHeader === 'function') {
-            res.setHeader("Content-Type", "text/html; charset=UTF-8");
-            if (typeof res.status === 'function') {
-                res.status(status).send(html);
-            } else {
-                res.write(html);
-                res.end();
-            }
-            return;
-        }
         return new Response(html, { status, headers: { "Content-Type": "text/html; charset=UTF-8" } });
     };
 
@@ -1461,14 +1357,7 @@ async function login(req, env, res = null) {
 
     if (method === "POST") {
         let body = '';
-        if (req instanceof Request) {
-            body = await req.text();
-        } else if (req.on) {
-            await new Promise(resolve => {
-                req.on('data', chunk => { body += chunk.toString(); });
-                req.on('end', resolve);
-            });
-        }
+        body = await request.text();
 
         const params = new URLSearchParams(body);
         const inputPassword = params.get("password")?.trim();
@@ -1480,7 +1369,7 @@ async function login(req, env, res = null) {
                 return renderLoginPage(`❌ UUID或HOST变量未设置`, 400);
             }
             log(`[LOGIN] → 跳转到 id=${id}`);
-            return redirectToId(id, req, res);
+            return redirectToId(id, request);
         } else {
             log(`[LOGIN] → 密码错误`);
             return renderLoginPage('❌ 密码错误，请重新尝试', 403);
@@ -1489,25 +1378,10 @@ async function login(req, env, res = null) {
     return renderLoginPage('Method Not Allowed', 405);
 }
 
-async function redirectToId(id, req, res = null) {
+async function redirectToId(id, request) {
     if (!id) id = 'default';
 
-    const envType = (typeof process !== 'undefined' && process.release?.name === 'node') ? 'Node/Vercel' :
-        (typeof WebSocketPair !== 'undefined' && typeof addEventListener === 'function') ? 'Cloudflare Worker' :
-            'Unknown';
-
-    log(`[redirectToId] → id: ${id}, env: ${envType}, req.url: ${req.url}`);
-
-    // Node / Vercel
-    if (res) {
-        log(`[redirectToId] → Node/Vercel 重定向到 /${id}`);
-        res.writeHead(302, { Location: `/${id}` });
-        res.end();
-        return { status: 302, text: async () => '' }; // 返回对象，防止 mainHandler crash
-    }
-
-    // Edge / CF Worker
-    const fullUrl = new URL(req.url, `https://${req.headers.get('host') || 'localhost'}`);
+    const fullUrl = new URL(request.url);
     log(`[redirectToId] → CF Worker 重定向到 ${fullUrl.origin}/${id}`);
     return Response.redirect(`${fullUrl.origin}/${id}`, 302);
 }
