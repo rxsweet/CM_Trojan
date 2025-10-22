@@ -28,8 +28,8 @@ jobs:
             const fs = require('fs');
             const path = require('path');
             
-            const sourceFileName = 'test_ob.js';
-            const outputFileName = 'test.js';
+            const sourceFileName = 'test.js';
+            const outputFileName = 'test_ob.js';
             const sourceFilePath = path.join(process.cwd(), sourceFileName);
 
             if (!fs.existsSync(sourceFilePath)) {
@@ -74,7 +74,7 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add '少年你相信光吗'
+          git add 'test_ob.js'
           if git diff --staged --quiet; then
             echo "No changes to commit, the obfuscated file is already up-to-date."
           else
