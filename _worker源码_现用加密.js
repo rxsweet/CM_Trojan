@@ -13,6 +13,8 @@ let bName = '444';
 let pName = '555';
 //上面是自己修改的部分
 
+
+
 let paddr;
 let s5 = '';
 let socks5Enable = false;
@@ -51,6 +53,7 @@ const protTypeBase64Tro = 'ZEhKdmFtRnU=';
 const httpPattern = /^http(s)?:\/\/.+/;
 let network = 'ws';
 let projectName = base64Decode('YW1jbHVicw==');
+
 
 let hostRemark = false;
 let enableLog = false;
