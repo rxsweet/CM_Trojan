@@ -26,9 +26,7 @@ let parsedSocks5 = {};
 let dohURL = atob('aHR0cHM6Ly9za3kucmV0aGlua2Rucy5jb20vMTotUGZfX19fXzlfOEFfQU1BSWdFOGtNQUJWRERtS09IVEFLZz0=');
 
 // Preferred address API interface
-let ipUrl = [
-
-];
+let ipUrl = ['https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt',];
 let ipUrlTxt = [
 	atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVsL21haW4vaXB2NC50eHQ=')
 ];
@@ -60,7 +58,7 @@ let fakeHostName;
 // Subscription and conversion details
 let subProtocol = 'https';
 let subConverter = 'url.v1.mk'; // Subscription conversion backend using Sheep's function
-let subConfig = "https://raw.githubusercontent.com/amclubs/ACL4SSR/main/Clash/config/ACL4SSR_Online_Full_MultiMode.ini"; // Subscription profile
+let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClashConfig_cn.ini"; // Subscription profile
 let fileName = 'rx';
 let isBase64 = true;
 
