@@ -226,12 +226,12 @@ export default {
 		//console.log(proxyIPs);
 
 		if (mytoken.length > 0 && mytoken.some(token => url.pathname.includes(token))) {
-			host = "null";
+			//host = "null";
 			if (env.HOST) {
 				const hosts = await ADD(env.HOST);
 				host = hosts[Math.floor(Math.random() * hosts.length)];
 			}
-			pw = env.PASSWORD || "null";
+			//pw = env.PASSWORD || "null";
 			path = env.PATH || "/?ed=2560";
 			sni = env.SNI || host;
 			epeius = env.ED || epeius;
