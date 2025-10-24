@@ -9,12 +9,11 @@
 
 ## 一些信息
 ```
-KV命名空间
-变量名称
-amclubs
-值
-testV
-?sub  ?base64  ?clash  ?singbox
+KV空间:
+变量名称:amclubs
+值:testV
+
+节点地址：?sub  ?base64  ?clash  ?singbox
 ```
 ## _worker源码新版_sub.js - am的订阅器
 1.删掉下面几行赋值的原内容，改成
