@@ -8,7 +8,7 @@ let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/
 */
 /*Obfuscate-rx*/
 let ipLocal = [];
-let fileName = 'MDAw';
+let fileName = 'bXlIb21l';
 let ytName = '111';
 let tgName = '222';
 let ghName = '333';
