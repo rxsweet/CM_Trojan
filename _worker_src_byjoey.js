@@ -1,5 +1,6 @@
+
+//加密完后将下面的变量复制到加密文件，去掉注释
 /*
-加密完后将下面的变量复制到加密文件，去掉注释
 let id = 'rx';
 let uuid  = 'f223e098-393f-48bd-8331-5770a5bd5517';
 let host = 'cf-node-trojan-vless.sweetrx.eu.org';
@@ -7,9 +8,8 @@ let ipUrl = 'https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt';
 let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClashConfig_cn.ini";
 */
 /*Obfuscate-rx*/
-
 let ipLocal = [];
-let fileName = 'MDAw';
+let fileName = 'bXlIb21l';
 let ytName = '111';
 let tgName = '222';
 let ghName = '333';
@@ -17,7 +17,40 @@ let bName = '444';
 let pName = '555';
 //上面是自己修改的部分
 
-
+/*下面是修改的部分
+1.删掉下面几行赋值的原内容，改成
+```
+let id = 'rx';
+let uuid  = 'f223e098-393f-48bd-8331-5770a5bd5517';
+let host = 'cf-node-trojan-vless.sweetrx.eu.org';
+let ipUrl = 'https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt';
+let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClashConfig_cn.ini";
+let ipLocal = [];
+```
+2.'function mainHandler'功能函数中：
+注释掉：
+```
+    id = getEnvVar('ID', env) || ID || id;
+    uuid = url.searchParams.get('UUID') || getEnvVar('UUID', env) || UUID;
+    host = url.searchParams.get('HOST') || getEnvVar('HOST', env) || HOST;
+```
+3.'function getConfigContent'功能函数中：
+修改if (!protType)后面代码为：
+```
+    if (!protType) {
+        //原代码
+        //protType = doubleBase64Decode(protTypeBase64);
+        //const responseBody1 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
+        //protType = doubleBase64Decode(protTypeBase64Tro);
+        //const responseBody2 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
+        //responseBody = [responseBody1, responseBody2].join('\n');
+        //上面是原代码
+        //关掉订阅vless后
+        protType = doubleBase64Decode(protTypeBase64Tro);
+        const responseBody2 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
+        responseBody = [responseBody2].join('\n');
+```
+*/
 
 let paddr;
 let s5 = '';
@@ -556,17 +589,9 @@ async function getConfigContent(rawHost, userAgent, _url, host, fakeHostName, fa
     const uniqueIpTxt = [...new Set([...ipUrlTxt, ...ipUrlCsv])];
     let responseBody;
     if (!protType) {
-        /*原代码
-        protType = doubleBase64Decode(protTypeBase64);
-        const responseBody1 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
         protType = doubleBase64Decode(protTypeBase64Tro);
         const responseBody2 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
-        responseBody = [responseBody1, responseBody2].join('\n');
-        */
-        //关掉订阅trojan后
-        protType = doubleBase64Decode(protTypeBase64);
-        const responseBody1 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
-        responseBody = [responseBody1].join('\n');
+        responseBody = [responseBody2].join('\n');
     } else {
         responseBody = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, doubleBase64Decode(protTypeBase64), nat64, hostRemark);
         responseBody = [responseBody].join('\n');
