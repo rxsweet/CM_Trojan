@@ -1,5 +1,5 @@
-/*
 //加密完后将下面的变量复制到加密文件，去掉注释
+/*
 let id = 'rx';
 let uuid  = 'f223e098-393f-48bd-8331-5770a5bd5517';
 let host = 'cf-node-trojan-vless.sweetrx.eu.org';
@@ -7,7 +7,6 @@ let ipUrl = 'https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt';
 let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClashConfig_cn.ini";
 */
 /*Obfuscate-rx*/
-
 let ipLocal = [];
 let fileName = 'MDAw';
 let ytName = '111';
@@ -38,13 +37,13 @@ let ipLocal = [];
 修改if (!protType)后面代码为：
 ```
     if (!protType) {
-        /*原代码
-        protType = doubleBase64Decode(protTypeBase64);
-        const responseBody1 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
-        protType = doubleBase64Decode(protTypeBase64Tro);
-        const responseBody2 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
-        responseBody = [responseBody1, responseBody2].join('\n');
-        */
+        //原代码
+        //protType = doubleBase64Decode(protTypeBase64);
+        //const responseBody1 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
+        //protType = doubleBase64Decode(protTypeBase64Tro);
+        //const responseBody2 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
+        //responseBody = [responseBody1, responseBody2].join('\n');
+        //上面是原代码
         //关掉订阅vless后
         protType = doubleBase64Decode(protTypeBase64Tro);
         const responseBody2 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
