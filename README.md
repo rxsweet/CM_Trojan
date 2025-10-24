@@ -7,6 +7,15 @@
 复杂加密使用actions，
 优先使用byjoey加密
 
+## 一些信息
+'''
+KV命名空间
+变量名称
+amclubs
+值
+testV
+?sub  ?base64  ?clash  ?singbox
+'''
 ## _worker源码新版_sub.js - am的订阅器
 1.删掉下面几行赋值的原内容，改成
 ```
