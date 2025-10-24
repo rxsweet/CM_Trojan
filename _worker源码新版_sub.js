@@ -1,9 +1,11 @@
-//加密完后将下面的变量复制到加密文件，去掉注释
-//let id = 'rx';
-//let uuid  = 'f223e098-393f-48bd-8331-5770a5bd5517';
-//let host = 'cf-node-trojan-vless.sweetrx.eu.org';
-//let ipUrl = 'https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt';
-//let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClashConfig_cn.ini";
+/*
+加密完后将下面的变量复制到加密文件，去掉注释
+let id = 'rx';
+let uuid  = 'f223e098-393f-48bd-8331-5770a5bd5517';
+let host = 'cf-node-trojan-vless.sweetrx.eu.org';
+let ipUrl = 'https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt';
+let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClashConfig_cn.ini";
+*/
 /*Obfuscate-rx*/
 
 let ipLocal = [];
