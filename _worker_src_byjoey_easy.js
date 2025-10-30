@@ -10,8 +10,6 @@ let bName = '444';
 let pName = '555';
 let paddrs = [];
 
-
-
 let paddr = paddrs[Math.floor(Math.random() * paddrs.length)];
 let pDomain = [];
 
