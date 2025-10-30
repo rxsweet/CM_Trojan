@@ -7,7 +7,6 @@ let host = 'cf-node-trojan-vless.sweetrx.eu.org';
 let ipUrl = 'https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt';
 let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClashConfig_cn.ini";
 */
-/*Obfuscate-rx*/
 let ipLocal = [];
 let fileName = 'bXlIb21l';
 let ytName = '111';
