@@ -65,6 +65,8 @@ jobs:
                 deadCodeInjection: false,//warning: 此选项会显著增加混淆代码的大小（最高可达 200%），仅当混淆代码的大小无关紧要时才使用,warning: 此选项强制启用 `stringArray` 
                 selfDefending: false,//warning:此项代码混淆后，请勿以任何方式更改混淆后的代码,任何更改（JavaScript美化工具）都可能导致代码无法正常运行,warning: 此项将 `compact`强制`true`
                 debugProtection: false//启用此项:几乎无法使用开发者工具的调试功能。warning: 如果打开开发者工具，可能会导致浏览器卡死。
+            };
+            
             const obfuscatedCode = JavaScriptObfuscator.obfuscate(originalCode, obfuscationOptions).getObfuscatedCode();
             
             fs.writeFileSync(path.join(process.cwd(), outputFileName), obfuscatedCode, 'utf8');
