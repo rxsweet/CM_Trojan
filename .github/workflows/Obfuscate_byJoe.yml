@@ -51,23 +51,24 @@ jobs:
 
             // --- 最终平衡型混淆配置 ---
             const obfuscationOptions = {
-                compact: true,
-                controlFlowFlattening: true,
-                controlFlowFlatteningThreshold: 0.75,
-                deadCodeInjection: true,
-                deadCodeInjectionThreshold: 0.4,
-                stringArray: true,
-                stringArrayEncoding: ['base64'],
-                stringArrayThreshold: 0.75,
-                renameGlobals: true,
-                identifierNamesGenerator: 'mangled',
-                numbersToExpressions: true,
-                splitStrings: true,
-                splitStringsChunkLength: 10,
-                transformObjectKeys: true,
-                selfDefending: false,
-                debugProtection: false
+                compact: true,// 压缩代码,一行紧凑的代码输出
+                controlFlowFlattening: true,// 控制流扁平化：对源代码进行结构转换，但会降低程序的可读性。warning: 此选项会显著影响性能，运行时速度最多可降低 1.5 倍
+                controlFlowFlatteningThreshold: 0.75,//控制`controlFlowFlattening` 转换概率0.75=75%。此设置对于大型代码尤其有用，因为大量的控制流转换会降低代码运行速度并增加代码体积
+                deadCodeInjection: true,//warning: 此选项会显著增加混淆代码的大小（最高可达 200%），仅当混淆代码的大小无关紧要时才使用,warning: 此选项强制启用 `stringArray` 
+                deadCodeInjectionThreshold: 0.4,//控制`deadCodeInjection` 转换概率0.4=40%
+                stringArray: true,// 启用字符串数组
+                stringArrayEncoding: ['base64'],// 将字符串数组用 base64 编码
+                stringArrayThreshold: 0.75,// 75% 的字符串都会被加密
+                renameGlobals: true,// 全局重命名
+                identifierNamesGenerator: 'mangled',// 变量名改变了,`mangled`：类似 `a`、`b`的短标识符名称,`hexadecimal`：类似 `_0xabc123` 的标识符名称,
+                numbersToExpressions: true,//启用将数字转换为表达式的功能,const foo = 1234;// output   const foo=-0xd93+-0x10b4+0x41*0x67+0x84e*0x3+-0xff8
+                splitStrings: true,//切割字符串功能
+                splitStringsChunkLength: 10,//splitStrings切割的次数
+                transformObjectKeys: true,//启用对象键的转换。对字典里面的值进行加密
+                selfDefending: false,//warning:此项代码混淆后，请勿以任何方式更改混淆后的代码,任何更改（JavaScript美化工具）都可能导致代码无法正常运行,warning: 此项将 `compact`强制`true`
+                debugProtection: false//启用此项:几乎无法使用开发者工具的调试功能。warning: 如果打开开发者工具，可能会导致浏览器卡死。
             };
+
 
             const obfuscatedCode = JavaScriptObfuscator.obfuscate(originalCode, obfuscationOptions).getObfuscatedCode();
             
