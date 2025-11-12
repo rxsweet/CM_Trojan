@@ -1,1534 +1,609 @@
 
-//加密完后将下面的变量复制到加密文件，去掉注释
-/*
-let id = 'rx';
-let uuid  = 'f223e098-393f-48bd-8331-5770a5bd5517';
-let host = 'cf-node-trojan-vless.sweetrx.eu.org';
-let ipUrl = 'https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt';
-let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClashConfig_cn.ini";
-*/
-let ipLocal = [];
-let fileName = 'bXlIb21l';
-let ytName = '111';
-let tgName = '222';
-let ghName = '333';
-let bName = '444';
-let pName = '555';
-//上面是自己修改的部分
+const express = require("express");
+const app = express();
+const axios = require("axios");
+const os = require('os');
+const fs = require("fs");
+const path = require("path");
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec);
+const { execSync } = require('child_process');        // 只填写UPLOAD_URL将上传节点,同时填写UPLOAD_URL和PROJECT_URL将上传订阅
+const UPLOAD_URL = process.env.UPLOAD_URL || '';      // 节点或订阅自动上传地址,需填写部署Merge-sub项目后的首页地址,例如：https://merge.xxx.com
+const PROJECT_URL = process.env.PROJECT_URL || '';    // 需要上传订阅或保活时需填写项目分配的url,例如：https://google.com
+const AUTO_ACCESS = process.env.AUTO_ACCESS || false; // false关闭自动保活，true开启,需同时填写PROJECT_URL变量
+const FILE_PATH = process.env.FILE_PATH || './tmp';   // 运行目录,sub节点文件保存目录
+const SUB_PATH = process.env.SUB_PATH || 'rx';       // 订阅路径
+const PORT = process.env.SERVER_PORT || process.env.PORT || 3000;        // http服务订阅端口
+const UUID = process.env.UUID || 'f223e098-393f-48bd-8331-5770a5bd5517'; // 使用哪吒v1,在不同的平台运行需修改UUID,否则会覆盖
+const NEZHA_SERVER = process.env.NEZHA_SERVER || '';        // 哪吒v1填写形式: nz.abc.com:8008  哪吒v0填写形式：nz.abc.com
+const NEZHA_PORT = process.env.NEZHA_PORT || '';            // 使用哪吒v1请留空，哪吒v0需填写
+const NEZHA_KEY = process.env.NEZHA_KEY || '';              // 哪吒v1的NZ_CLIENT_SECRET或哪吒v0的agent密钥
+const ARGO_DOMAIN = process.env.ARGO_DOMAIN || 'databricks.sweetrx.eu.org';          // 固定隧道域名,留空即启用临时隧道
+const ARGO_AUTH = process.env.ARGO_AUTH || 'eyJhIjoiNTkzZDQyN2E0ZWFjMTU4YTk3NTA0YTNmZWIwZjYyMWUiLCJ0IjoiNTJiNzI1NmItNWZiYi00NDA0LWI1NDEtMjA2ZDMzZDI2YWMwIiwicyI6IlptRmhNekE0TkdFdE0yUmxZaTAwWXpCbExXSTRaVE10TW1SbVl6QTRZalpoTmpreiJ9';              // 固定隧道密钥json或token,留空即启用临时隧道,json获取地址：https://json.zone.id
+const ARGO_PORT = process.env.ARGO_PORT || 8008;            // 固定隧道端口,使用token需在cloudflare后台设置和这里一致
+const CFIP = process.env.CFIP || 'cdns.doon.eu.org';        // 节点优选域名或优选ip  
+const CFPORT = process.env.CFPORT || 443;                   // 节点优选域名或优选ip对应的端口
+const NAME = process.env.NAME || '';                        // 节点名称
 
-/*下面是修改的部分
-1.删掉下面几行赋值的原内容，改成
-```
-let id = 'rx';
-let uuid  = 'f223e098-393f-48bd-8331-5770a5bd5517';
-let host = 'cf-node-trojan-vless.sweetrx.eu.org';
-let ipUrl = 'https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt';
-let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClashConfig_cn.ini";
-let ipLocal = [];
-```
-2.'function mainHandler'功能函数中：
-注释掉：
-```
-    id = getEnvVar('ID', env) || ID || id;
-    uuid = url.searchParams.get('UUID') || getEnvVar('UUID', env) || UUID;
-    host = url.searchParams.get('HOST') || getEnvVar('HOST', env) || HOST;
-```
-3.'function getConfigContent'功能函数中：
-修改if (!protType)后面代码为：
-```
-    if (!protType) {
-        //原代码
-        //protType = doubleBase64Decode(protTypeBase64);
-        //const responseBody1 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
-        //protType = doubleBase64Decode(protTypeBase64Tro);
-        //const responseBody2 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
-        //responseBody = [responseBody1, responseBody2].join('\n');
-        //上面是原代码
-        //关掉订阅vless后
-        protType = doubleBase64Decode(protTypeBase64Tro);
-        const responseBody2 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
-        responseBody = [responseBody2].join('\n');
-```
-*/
-
-let paddr;
-let s5 = '';
-let socks5Enable = false;
-let parsedSocks5 = {};
-
-const defaultIpUrlTxt = base64Decode('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVsL21haW4vaXB2NC50eHQ=');
-let randomNum = 25;
-
-let ipUrlTxt = [defaultIpUrlTxt];
-let ipUrlCsv = [];
-let noTLS = false;
-let sl = 5;
-
-let fakeUserId;
-let fakeHostName;
-
-let isBase64 = true;
-
-let subConverter = base64Decode('dXJsLnYxLm1r');
-let subProtocol = 'https';
-
-let tagName = base64Decode('YW1jbHVicw==');
-let subUpdateTime = 6;
-let timestamp = 4102329600000;
-let total = 99 * 1125899906842624;
-let download = Math.floor(Math.random() * 1099511627776);
-let upload = download;
-let expire = Math.floor(timestamp / 1000);
-
-let nat64 = false;
-let nat64Prefix;
-let nat64Prefixs = ['2602:fc59:b0:64::'];
-
-const protTypeBase64 = 'ZG14bGMzTT0=';
-const protTypeBase64Tro = 'ZEhKdmFtRnU=';
-const httpPattern = /^http(s)?:\/\/.+/;
-let network = 'ws';
-let projectName = base64Decode('YW1jbHVicw==');
-
-
-let hostRemark = false;
-let enableLog = false;
-
-// 定义 subParams 和其他全局变量
-let subParams = ['sub', 'base64', 'b64', 'clash', 'singbox', 'sb'];
-let portSet_http = new Set([80, 8080, 8880, 2052, 2086, 2095, 2082]);
-let portSet_https = new Set([443, 8443, 2053, 2096, 2087, 2083]);
-
-// Cloudflare Workers 入口点
-export default {
-    async fetch(request, env, ctx) {
-        try {
-            const url = new URL(request.url);
-            const headers = request.headers;
-            const rawHost = headers.get('host') || headers.get('Host') || 'localhost';
-            const userAgent = headers.get('User-Agent') || '';
-            
-            enableLog = url.searchParams.get('ENABLE_LOG') || getEnvVar('ENABLE_LOG', env) || enableLog;
-            log(`[mainHandler]-->rawHost: ${rawHost}`);
-            log(`[mainHandler]-->id: ${id} uuid: ${uuid} host: ${host}`);
-
-            // 处理环境变量和查询参数
-            const SOCKS5 = getEnvVar('SOCKS5', env);
-            s5 = url.searchParams.get('SOCKS5') || SOCKS5 || s5;
-            parsedSocks5 = await parseSocks5FromUrl(s5, url);
-            if (parsedSocks5) socks5Enable = true;
-
-            const newCsvUrls = [], newTxtUrls = [];
-            const IP_URL = getEnvVar('IP_URL', env);
-            let ip_url = url.searchParams.get('IP_URL') || IP_URL || ipUrl;
-            if (ip_url) {
-                const result = await parseIpUrl(ip_url);
-                ipUrlCsv = result.ipUrlCsvResult;
-                ipUrlTxt = result.ipUrlTxtResult;
-            }
-
-            const PROXYIP = getEnvVar('PROXYIP', env);
-            const proxyIPUrl = url.searchParams.get('PROXYIP') || PROXYIP;
-            if (proxyIPUrl) {
-                if (httpPattern.test(proxyIPUrl)) {
-                    const proxyIpTxt = await addIpText(proxyIPUrl);
-                    let ipUrlTxtAndCsv;
-                    if (proxyIPUrl.endsWith('.csv')) {
-                        ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, null, proxyIpTxt);
-                    } else {
-                        ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, proxyIpTxt, null);
-                    }
-                    const uniqueIpTxt = [...new Set([...ipUrlTxtAndCsv.txt, ...ipUrlTxtAndCsv.csv])];
-                    paddr = uniqueIpTxt[Math.floor(Math.random() * uniqueIpTxt.length)];
-                } else {
-                    const proxyIPs = await addIpText(proxyIPUrl);
-                    paddr = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
-                }
-            }
-
-            const NAT64 = getEnvVar('NAT64', env);
-            nat64 = url.searchParams.get('NAT64') || NAT64 || nat64;
-            const NAT64_PREFIX = getEnvVar('NAT64_PREFIX', env);
-            const nat64PrefixUrl = url.searchParams.get('NAT64_PREFIX') || NAT64_PREFIX;
-            if (nat64PrefixUrl) {
-                if (httpPattern.test(nat64PrefixUrl)) {
-                    const proxyIpTxt = await addIpText(nat64PrefixUrl);
-                    let ipUrlTxtAndCsv;
-                    if (nat64PrefixUrl.endsWith('.csv')) {
-                        ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, null, proxyIpTxt);
-                    } else {
-                        ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, proxyIpTxt, null);
-                    }
-                    const uniqueIpTxt = [...new Set([...ipUrlTxtAndCsv.txt, ...ipUrlTxtAndCsv.csv])];
-                    nat64Prefix = uniqueIpTxt[Math.floor(Math.random() * uniqueIpTxt.length)];
-                } else {
-                    nat64Prefixs = await addIpText(nat64PrefixUrl);
-                    nat64Prefix = nat64Prefixs[Math.floor(Math.random() * nat64Prefixs.length)];
-                }
-            }
-
-            const HOST_REMARK = getEnvVar('HOST_REMARK', env);
-            hostRemark = url.searchParams.get('HOST_REMARK') || HOST_REMARK || hostRemark;
-            const PROT_TYPE = getEnvVar('PROT_TYPE', env);
-            let protType = url.searchParams.get('PROT_TYPE') || PROT_TYPE;
-            if (protType) protType = protType.toLowerCase();
-            const RANDOW_NUM = getEnvVar('RANDOW_NUM', env);
-            randomNum = url.searchParams.get('RANDOW_NUM') || RANDOW_NUM || randomNum;
-            log(`[handler]-->randomNum: ${randomNum}`);
-
-            const SUB_CONFIG = getEnvVar('SUB_CONFIG', env);
-            subConfig = SUB_CONFIG || subConfig;
-            const SUB_CONVERTER = getEnvVar('SUB_CONVERTER', env);
-            subConverter = SUB_CONVERTER || subConverter;
-            let subProtocol, subConverterWithoutProtocol;
-            if (subConverter.startsWith("http://") || subConverter.startsWith("https://")) {
-                [subProtocol, subConverterWithoutProtocol] = subConverter.split("://");
-            } else {
-                [subProtocol, subConverterWithoutProtocol] = [undefined, subConverter];
-            }
-            subConverter = subConverterWithoutProtocol;
-
-            fakeUserId = await getFakeUserId(uuid);
-            fakeHostName = getFakeHostName(rawHost);
-            log(`[handler]-->fakeUserId: ${fakeUserId}`);
-
-            // ---------------- 路由 ----------------
-            if (url.pathname === "/login") {
-                const result = await login(request, env);
-                return result;
-            }
-            if (url.pathname === `/${id}/setting`) {
-                const html = await getSettingHtml(rawHost);
-                return sendResponse(html, userAgent);
-            }
-            if (url.pathname === `/${id}`) {
-                const html = await getConfig(rawHost, uuid, host, paddr, parsedSocks5, userAgent, url, null, nat64, hostRemark);
-                return sendResponse(html, userAgent);
-            }
-            if (url.pathname === `/${fakeUserId}`) {
-                const html = await getConfig(rawHost, uuid, host, paddr, parsedSocks5, 'CF-FAKE-UA', url, null, nat64, hostRemark);
-                return sendResponse(html, 'CF-FAKE-UA');
-            }
-            return login(request, env);
-            
-        } catch (error) {
-            return new Response(`Error: ${error.message}`, { status: 500 });
-        }
-    }
-};
-
-/** --------------------- main ------------------------------ */
-function getEnvVar(key, env) {
-    if (env && typeof env[key] !== 'undefined') {
-        return env[key];
-    }
-    return undefined;
+// 创建运行文件夹
+if (!fs.existsSync(FILE_PATH)) {
+  fs.mkdirSync(FILE_PATH);
+  console.log(`${FILE_PATH} is created`);
+} else {
+  console.log(`${FILE_PATH} already exists`);
 }
 
-/** ---------------------Tools------------------------------ */
-function log(...args) {
-    if (!enableLog) return;
-    const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0];
-    console.log(`[CF] ${timestamp} →`, ...args);
+// 生成随机6位字符文件名
+function generateRandomName() {
+  const characters = 'abcdefghijklmnopqrstuvwxyz';
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
 }
 
-function errorLogs(err, extra = {}) {
-    const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0];
-    if (err instanceof Error) {
-        console.error(`[CF-ERR] ${timestamp} →`, err.message, '\nStack:', err.stack, extra);
-    } else {
-        console.error(`[CF-ERR] ${timestamp} →`, err, extra);
-    }
-}
+// 全局常量
+const npmName = generateRandomName();
+const webName = generateRandomName();
+const botName = generateRandomName();
+const phpName = generateRandomName();
+let npmPath = path.join(FILE_PATH, npmName);
+let phpPath = path.join(FILE_PATH, phpName);
+let webPath = path.join(FILE_PATH, webName);
+let botPath = path.join(FILE_PATH, botName);
+let subPath = path.join(FILE_PATH, 'sub.txt');
+let listPath = path.join(FILE_PATH, 'list.txt');
+let bootLogPath = path.join(FILE_PATH, 'boot.log');
+let configPath = path.join(FILE_PATH, 'config.json');
 
-function sendResponse(content, userAgent = '', status = 200) {
-    if (!status || typeof status !== 'number') status = 200;
+// 如果订阅器上存在历史运行节点则先删除
+function deleteNodes() {
+  try {
+    if (!UPLOAD_URL) return;
+    if (!fs.existsSync(subPath)) return;
 
-    const isMozilla = userAgent.toLowerCase().includes('mozilla');
-    const headers = {
-        "Content-Type": isMozilla ? "text/html;charset=utf-8" : "text/plain;charset=utf-8",
-        "Profile-Update-Interval": `${subUpdateTime}`,
-        "Subscription-Userinfo": `upload=${upload}; download=${download}; total=${total}; expire=${expire}`,
-    };
-
-    if (!isMozilla) {
-        const fileNameAscii = encodeURIComponent(decodeBase64Utf8(fileName));
-        headers["Content-Disposition"] = `attachment; filename=${fileNameAscii}; filename*=gbk''${fileNameAscii}`;
-    }
-
-    return new Response(content, { status, headers });
-}
-
-function base64Encode(input) {
+    let fileContent;
     try {
-        // Cloudflare Workers 环境使用 btoa
-        if (typeof btoa === 'function') {
-            const utf8 = new TextEncoder().encode(input);
-            let binary = '';
-            utf8.forEach(b => binary += String.fromCharCode(b));
-            return btoa(binary);
-        } else {
-            throw new Error('Base64 encode not supported in this environment');
-        }
-    } catch (e) {
-        console.error('Base64 encode error:', e);
-        return '';
-    }
-}
-
-function base64Decode(input) {
-    try {
-        if (typeof atob === 'function') {
-            return atob(input);
-        } else {
-            throw new Error('Base64 decode not supported in this environment');
-        }
-    } catch (e) {
-        console.error('Base64 decode error:', e);
-        return '';
-    }
-}
-
-function doubleBase64Decode(input) {
-    const first = base64Decode(input);
-    return base64Decode(first);
-}
-
-function getFileType(url) {
-    const baseUrl = url.split('@')[0];
-    const extension = baseUrl.match(/\.(csv|txt)$/i);
-    if (extension) {
-        return extension[1].toLowerCase();
-    } else {
-        return 'txt';
-    }
-}
-
-async function addIpText(envAdd) {
-    if (!envAdd) return [];
-    var addText = envAdd.replace(/[	|"'\r\n]+/g, ',').replace(/,+/g, ',');
-    if (addText.charAt(0) == ',') {
-        addText = addText.slice(1);
-    }
-    if (addText.charAt(addText.length - 1) == ',') {
-        addText = addText.slice(0, addText.length - 1);
-    }
-    const add = addText.split(',');
-    return add;
-}
-
-function socks5Parser(socks5) {
-    let [latter, former] = socks5.split("@").reverse();
-    let username, password, hostname, port;
-
-    if (former) {
-        const formers = former.split(":");
-        if (formers.length !== 2) {
-            throw new Error('Invalid SOCKS address format: authentication must be in the "username:password" format');
-        }
-        [username, password] = formers;
+      fileContent = fs.readFileSync(subPath, 'utf-8');
+    } catch {
+      return null;
     }
 
-    const latters = latter.split(":");
-    port = Number(latters.pop());
-    if (isNaN(port)) {
-        throw new Error('Invalid SOCKS address format: port must be a number');
-    }
+    const decoded = Buffer.from(fileContent, 'base64').toString('utf-8');
+    const nodes = decoded.split('\n').filter(line => 
+      /(vless|vmess|trojan|hysteria2|tuic):\/\//.test(line)
+    );
 
-    hostname = latters.join(":");
-    const isIPv6 = hostname.includes(":") && !/^\[.*\]$/.test(hostname);
-    if (isIPv6) {
-        throw new Error('Invalid SOCKS address format: IPv6 addresses must be enclosed in brackets, e.g., [2001:db8::1]');
-    }
+    if (nodes.length === 0) return;
 
-    return { username, password, hostname, port };
-}
-
-async function parseSocks5FromUrl(socks5, url) {
-    if (/\/socks5?=/.test(url.pathname)) {
-        socks5 = url.pathname.split('5=')[1];
-    } else if (/\/socks[5]?:\/\//.test(url.pathname)) {
-        socks5 = url.pathname.split('://')[1].split('#')[0];
-    }
-
-    const authIdx = socks5.indexOf('@');
-    if (authIdx !== -1) {
-        let userPassword = socks5.substring(0, authIdx);
-        const base64Regex = /^(?:[A-Z0-9+/]{4})*(?:[A-Z0-9+/]{2}==|[A-Z0-9+/]{3}=)?$/i;
-        if (base64Regex.test(userPassword) && !userPassword.includes(':')) {
-            userPassword = atob(userPassword);
-        }
-        socks5 = `${userPassword}@${socks5.substring(authIdx + 1)}`;
-    }
-
-    if (socks5) {
-        try {
-            return socks5Parser(socks5);
-        } catch (err) {
-            log(err.toString());
-            return null;
-        }
-    }
+    axios.post(`${UPLOAD_URL}/api/delete-nodes`, 
+      JSON.stringify({ nodes }),
+      { headers: { 'Content-Type': 'application/json' } }
+    ).catch((error) => { 
+      return null; 
+    });
     return null;
+  } catch (err) {
+    return null;
+  }
 }
 
-function getRandomItems(arr, count) {
-    if (!Array.isArray(arr)) return [];
-    const shuffled = [...arr].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
+// 清理历史文件
+function cleanupOldFiles() {
+  try {
+    const files = fs.readdirSync(FILE_PATH);
+    files.forEach(file => {
+      const filePath = path.join(FILE_PATH, file);
+      try {
+        const stat = fs.statSync(filePath);
+        if (stat.isFile()) {
+          fs.unlinkSync(filePath);
+        }
+      } catch (err) {
+        // 忽略所有错误，不记录日志
+      }
+    });
+  } catch (err) {
+    // 忽略所有错误，不记录日志
+  }
 }
 
-async function getFakeUserId(userId) {
-    const date = new Date().toISOString().split('T')[0];
-    const rawString = `${userId}-${date}`;
+// 根路由
+app.get("/", function(req, res) {
+  res.send("Hello world!");
+});
 
-    const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(rawString));
-    const hashArray = Array.from(new Uint8Array(hashBuffer)).map(b => ('00' + b.toString(16)).slice(-2)).join('');
-
-    return `${hashArray.substring(0, 8)}-${hashArray.substring(8, 12)}-${hashArray.substring(12, 16)}-${hashArray.substring(16, 20)}-${hashArray.substring(20, 32)}`;
+// 生成xr-ay配置文件
+async function generateConfig() {
+  const config = {
+    log: { access: '/dev/null', error: '/dev/null', loglevel: 'none' },
+    inbounds: [
+      { port: ARGO_PORT, protocol: 'vless', settings: { clients: [{ id: UUID, flow: 'xtls-rprx-vision' }], decryption: 'none', fallbacks: [{ dest: 3001 }, { path: "/vless-argo", dest: 3002 }, { path: "/vmess-argo", dest: 3003 }, { path: "/trojan-argo", dest: 3004 }] }, streamSettings: { network: 'tcp' } },
+      { port: 3001, listen: "127.0.0.1", protocol: "vless", settings: { clients: [{ id: UUID }], decryption: "none" }, streamSettings: { network: "tcp", security: "none" } },
+      { port: 3002, listen: "127.0.0.1", protocol: "vless", settings: { clients: [{ id: UUID, level: 0 }], decryption: "none" }, streamSettings: { network: "ws", security: "none", wsSettings: { path: "/vless-argo" } }, sniffing: { enabled: true, destOverride: ["http", "tls", "quic"], metadataOnly: false } },
+      { port: 3003, listen: "127.0.0.1", protocol: "vmess", settings: { clients: [{ id: UUID, alterId: 0 }] }, streamSettings: { network: "ws", wsSettings: { path: "/vmess-argo" } }, sniffing: { enabled: true, destOverride: ["http", "tls", "quic"], metadataOnly: false } },
+      { port: 3004, listen: "127.0.0.1", protocol: "trojan", settings: { clients: [{ password: UUID }] }, streamSettings: { network: "ws", security: "none", wsSettings: { path: "/trojan-argo" } }, sniffing: { enabled: true, destOverride: ["http", "tls", "quic"], metadataOnly: false } },
+    ],
+    dns: { servers: ["https+local://8.8.8.8/dns-query"] },
+    outbounds: [ { protocol: "freedom", tag: "direct" }, {protocol: "blackhole", tag: "block"} ]
+  };
+  fs.writeFileSync(path.join(FILE_PATH, 'config.json'), JSON.stringify(config, null, 2));
 }
 
-function getFakeHostName(host) {
-    if (!fakeHostName) {
-        fakeHostName = 'default-fake-host';
-    }
-    if (host.includes(".pages.dev")) {
-        return `${fakeHostName}.pages.dev`;
-    } else if (host.includes(".workers.dev") || host.includes("notls") || noTLS === 'true') {
-        return `${fakeHostName}.workers.dev`;
-    }
-    return `${fakeHostName}.xyz`;
+// 判断系统架构
+function getSystemArchitecture() {
+  const arch = os.arch();
+  if (arch === 'arm' || arch === 'arm64' || arch === 'aarch64') {
+    return 'arm';
+  } else {
+    return 'amd';
+  }
 }
 
-function revertFakeInfo(content, userId, hostName) {
-    log(`revertFakeInfo-->: isBase64 ${isBase64} \n content: ${content}`);
-    if (isBase64) {
-        content = base64Decode(content);
-    }
-    content = content.replace(new RegExp(fakeUserId, 'g'), userId).replace(new RegExp(fakeHostName, 'g'), hostName);
-    if (isBase64) {
-        content = base64Encode(content);
-    }
-    return content;
+// 下载对应系统架构的依赖文件
+function downloadFile(fileName, fileUrl, callback) {
+  const filePath = fileName; 
+  
+  // 确保目录存在
+  if (!fs.existsSync(FILE_PATH)) {
+    fs.mkdirSync(FILE_PATH, { recursive: true });
+  }
+  
+  const writer = fs.createWriteStream(filePath);
+
+  axios({
+    method: 'get',
+    url: fileUrl,
+    responseType: 'stream',
+  })
+    .then(response => {
+      response.data.pipe(writer);
+
+      writer.on('finish', () => {
+        writer.close();
+        console.log(`Download ${path.basename(filePath)} successfully`);
+        callback(null, filePath);
+      });
+
+      writer.on('error', err => {
+        fs.unlink(filePath, () => { });
+        const errorMessage = `Download ${path.basename(filePath)} failed: ${err.message}`;
+        console.error(errorMessage); // 下载失败时输出错误消息
+        callback(errorMessage);
+      });
+    })
+    .catch(err => {
+      const errorMessage = `Download ${path.basename(filePath)} failed: ${err.message}`;
+      console.error(errorMessage); // 下载失败时输出错误消息
+      callback(errorMessage);
+    });
 }
 
-function decodeBase64Utf8(str) {
-    try {
-        const bytes = Uint8Array.from(atob(str), c => c.charCodeAt(0));
-        return new TextDecoder('utf-8').decode(bytes);
-    } catch (e) {
-        return str;
-    }
-}
+// 下载并运行依赖文件
+async function downloadFilesAndRun() {  
+  
+  const architecture = getSystemArchitecture();
+  const filesToDownload = getFilesForArchitecture(architecture);
 
-function xEn(plain, key) {
-    const encoder = new TextEncoder();
-    const p = encoder.encode(plain);
-    const k = encoder.encode(key);
-    const out = new Uint8Array(p.length);
-    for (let i = 0; i < p.length; i++) {
-        out[i] = p[i] ^ k[i % k.length];
-    }
-    return btoa(String.fromCharCode(...out));
-}
+  if (filesToDownload.length === 0) {
+    console.log(`Can't find a file for the current architecture`);
+    return;
+  }
 
-function xDe(b64, key) {
-    const data = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-    const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
-    const k = encoder.encode(key);
-    const out = new Uint8Array(data.length);
-    for (let i = 0; i < data.length; i++) {
-        out[i] = data[i] ^ k[i % k.length];
-    }
-    return decoder.decode(out);
-}
-
-async function parseIpUrl(ip_url) {
-    const newCsvUrls = [];
-    const newTxtUrls = [];
-    try {
-        const response = await fetch(ip_url);
-        const text = await response.text();
-        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-        const hasHttpLinks = lines.some(line => /^https?:\/\//i.test(line));
-        if (hasHttpLinks) {
-            lines.forEach(u => {
-                if (/^https?:\/\//i.test(u)) {
-                    if (getFileType(u) === 'csv') {
-                        newCsvUrls.push(u);
-                    } else {
-                        newTxtUrls.push(u);
-                    }
-                }
-            });
+  const downloadPromises = filesToDownload.map(fileInfo => {
+    return new Promise((resolve, reject) => {
+      downloadFile(fileInfo.fileName, fileInfo.fileUrl, (err, filePath) => {
+        if (err) {
+          reject(err);
         } else {
-            if (getFileType(ip_url) === 'csv') {
-                newCsvUrls.push(ip_url);
-            } else {
-                newTxtUrls.push(ip_url);
-            }
+          resolve(filePath);
         }
-        const ipUrlCsvResult = [...new Set(newCsvUrls)];
-        const ipUrlTxtResult = [...new Set(newTxtUrls)];
-        return { ipUrlCsvResult, ipUrlTxtResult };
-    } catch (err) {
-        errorLogs('获取 IP_URL 文件内容失败：', err);
-        return { ipUrlCsvResult: [], ipUrlTxtResult: [] };
-    }
-}
+      });
+    });
+  });
 
-/** ---------------------Get data------------------------------ */
-// subParams 和其他全局变量已经在文件开头定义
-
-async function getConfig(rawHost, userId, host, proxyIP, parsedSocks5, userAgent, _url, protType, nat64, hostRemark) {
-    log(`------------getConfig------------------`);
-    log(`userId: ${userId} \n host: ${host} \n proxyIP: ${proxyIP} \n userAgent: ${userAgent} \n _url: ${_url} \n protType: ${protType} \n nat64: ${nat64} \n hostRemark: ${hostRemark} `);
-
-    userAgent = userAgent.toLowerCase();
-    let port = 443;
-    if (host.includes('.workers.dev')) {
-        port = 80;
-    }
-
-    if (userAgent.includes('mozilla') && !subParams.some(param => _url.searchParams.has(param))) {
-        if (!protType) {
-            protType = doubleBase64Decode(protTypeBase64);
-        }
-        const [v2, clash] = getConfigLink(userId, host, host, port, host, proxyIP, protType, nat64);
-        return getHtmlRes(rawHost, proxyIP, socks5Enable, parsedSocks5, host, v2, clash);
-    }
-
-    let num = randomNum || 25;
-    if (protType && !randomNum) {
-        num = num * 2;
-    }
-
-    const ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, ipUrlTxt, ipUrlCsv, num);
-
-    log(`txt: ${ipUrlTxtAndCsv.txt} \n csv: ${ipUrlTxtAndCsv.csv}`);
-    let content = await getConfigContent(rawHost, userAgent, _url, host, fakeHostName, fakeUserId, noTLS, ipUrlTxtAndCsv.txt, ipUrlTxtAndCsv.csv, protType, nat64, hostRemark);
-
-    return _url.pathname === `/${fakeUserId}` ? content : revertFakeInfo(content, userId, host);
-}
-
-function getHtmlRes(rawHost, proxyIP, socks5Enable, parsedSocks5, host, v2, clash) {
-    const subRemark = `IP_LOCAL/IP_URL`;
-    let proxyIPRemark = `PROXYIP: ${proxyIP}`;
-    if (socks5Enable) {
-        proxyIPRemark = `socks5: ${parsedSocks5.hostname}:${parsedSocks5.port}`;
-    }
-    let remark = `您的订阅节点由设置变量 ${subRemark} 提供, 当前使用反代是${proxyIPRemark}`;
-    if (!proxyIP && !socks5Enable) {
-        remark = `您的订阅节点由设置变量 ${subRemark} 提供, 当前没设置反代, 推荐您设置PROXYIP变量或SOCKS5变量或订阅连接带proxyIP`;
-    }
-    return getConfigHtml(rawHost, remark, v2, clash);
-}
-
-function getConfigLink(uuid, host, address, port, remarks, proxyip, protType, nat64) {
-    const ep = 'none';
-    let pathParm = `&PROT_TYPE=${protType}`;
-    if (proxyip) {
-        pathParm = pathParm + `&PADDR=${proxyip}`;
-    }
-    if (nat64) {
-        pathParm = pathParm + `&P64=${nat64}`;
-    }
-    if (nat64Prefix) {
-        pathParm = pathParm + `&P64PREFIX=${nat64Prefix}`;
-    }
-    if (s5) {
-        pathParm = pathParm + `&S5=${s5}`;
-    }
-    let path = `/?ed=2560` + pathParm;
-    const fp = 'randomized';
-    let tls = ['tls', true];
-    if (host.includes('.workers.dev') || host.includes('pages.dev')) {
-        path = `/${host}${path}`;
-        remarks += ' 请用绑定自定义域名访问再订阅！';
-    }
-
-    const v2 = getv2LinkConfig({ protType, host, uuid, address, port, remarks, ep, path, fp, tls });
-    const clash = getCLinkConfig(protType, host, address, port, uuid, path, tls, fp);
-    return [v2, clash];
-}
-
-function getv2LinkConfig({ protType, host, uuid, address, port, remarks, ep, path, fp, tls }) {
-    log(`------------getv2LinkConfig------------------`);
-    log(`protType: ${protType} \n host: ${host} \n uuid: ${uuid} \n address: ${address} \n port: ${port} \n remarks: ${remarks} \n ep: ${ep} \n path: ${path} \n fp: ${fp} \n tls: ${tls} `);
-
-    let sAndp = `&sni=${host}&fp=${fp}`;
-    if (portSet_http.has(parseInt(port))) {
-        tls = ['', false];
-        sAndp = '';
-    }
-    const k = 'id';
-    const t = xEn(protType, k);
-    const u = xEn(uuid, k);
-    const a = xEn(address, k);
-    const p = xEn(port, k);
-
-    const v2 = `${xDe(t, k)}://${xDe(u, k)}@${xDe(a, k)}:${xDe(p, k)}\u003f\u0065\u006e\u0063\u0072\u0079` + 'p' + `${atob('dGlvbj0=')}${ep}\u0026\u0073\u0065\u0063\u0075\u0072\u0069\u0074\u0079\u003d${tls[0]}&type=${network}&host=${host}&path=${encodeURIComponent(path)}${sAndp}#${encodeURIComponent(remarks)}`;
-    return v2;
-}
-
-function getCLinkConfig(protType, host, address, port, uuid, path, tls, fp) {
-    log(`------------getCLinkConfig------------------`);
-    log(`protType: ${protType} \n host: ${host} \n address: ${address} \n port: ${port} \n uuid: ${uuid} \n path: ${path} \n tls: ${tls} \n fp: ${fp} `);
-    const k = 'idc';
-    const t = xEn(protType, k);
-    const u = xEn(uuid, k);
-    const a = xEn(address, k);
-    const p = xEn(port, k);
-    return `- {type: ${xDe(t, k)}, name: ${host}, server: ${xDe(a, k)}, port: ${xDe(p, k)}, password: ${xDe(u, k)}, network: ${network}, tls: ${tls[1]}, udp: false, sni: ${host}, client-fingerprint: ${fp}, skip-cert-verify: true,  ws-opts: {path: ${path}, headers: {Host: ${host}}}}`;
-}
-
-async function getConfigContent(rawHost, userAgent, _url, host, fakeHostName, fakeUserId, noTLS, ipUrlTxt, ipUrlCsv, protType, nat64, hostRemark) {
-    log(`------------getConfigContent------------------`);
-    const uniqueIpTxt = [...new Set([...ipUrlTxt, ...ipUrlCsv])];
-    let responseBody;
-    if (!protType) {
-        protType = doubleBase64Decode(protTypeBase64Tro);
-        const responseBody2 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
-        responseBody = [responseBody2].join('\n');
-    } else {
-        responseBody = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, doubleBase64Decode(protTypeBase64), nat64, hostRemark);
-        responseBody = [responseBody].join('\n');
-    }
-    protType = doubleBase64Decode(protTypeBase64);
-    const responseBodyTop = splitNodeData(ipLocal, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark);
-    responseBody = [responseBodyTop, responseBody].join('\n');
-    responseBody = base64Encode(responseBody);
-
-    if (!userAgent.includes(('CF-FAKE-UA').toLowerCase())) {
-        const safeHost = (rawHost || '').replace(/^https?:\/\//, '');
-        let url = `https://${safeHost}/${fakeUserId}`;
-        log(`[getConfigContent]---> url: ${url}`);
-
-        if (isClashCondition(userAgent, _url)) {
-            isBase64 = false;
-            url = createSubConverterUrl('clash', url, subConfig, subConverter, subProtocol);
-        } else if (isSingboxCondition(userAgent, _url)) {
-            isBase64 = false;
-            url = createSubConverterUrl('singbox', url, subConfig, subConverter, subProtocol);
-        } else {
-            return responseBody;
-        }
-        try {
-            const finalUrl = new URL(url).toString();
-            log(`[getConfigContent] Fetching from: ${finalUrl}`);
-            const response = await fetch(finalUrl, {
-                headers: {
-                    'User-Agent': `${userAgent} ${projectName}`
-                }
-            });
-            responseBody = await response.text();
-        } catch (err) {
-            errorLogs(`[getConfigContent][fetch error] ${err.message}`);
-        }
-    }
-
-    return responseBody;
-}
-
-function createSubConverterUrl(target, url, subConfig, subConverter, subProtocol) {
-    return `${subProtocol}://${subConverter}/sub?target=${target}&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subConfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
-}
-
-function isClashCondition(userAgent, _url) {
-    return (userAgent.includes('clash') && !userAgent.includes('nekobox')) || (_url.searchParams.has('clash') && !userAgent.includes('subConverter'));
-}
-
-function isSingboxCondition(userAgent, _url) {
-    return userAgent.includes('sing-box') || userAgent.includes('singbox') || ((_url.searchParams.has('singbox') || _url.searchParams.has('sb')) && !userAgent.includes('subConverter'));
-}
-
-function splitNodeData(uniqueIpTxt, noTLS, host, uuid, userAgent, protType, nat64, hostRemark) {
-    log(`splitNodeData----> \n host: ${host} \n uuid: ${uuid} \n protType: ${protType} \n hostRemark: ${hostRemark}`);
-    const isHostRemark = (hostRemark === true || hostRemark === 'true');
-
-    const regionMap = {
-        'SG': '🇸🇬 SG',
-        'HK': '🇭🇰 HK',
-        'KR': '🇰🇷 KR',
-        'JP': '🇯🇵 JP',
-        'GB': '🇬🇧 GB',
-        'US': '🇺🇸 US',
-        'TW': '🇼🇸 TW',
-        'CF': '📶 CF'
-    };
-    function isLikelyHost(str) {
-        if (!str) return false;
-        str = str.trim();
-        if (/\s|\/|\\|\(|\)|[\u4e00-\u9fff]/.test(str)) return false;
-        if (/^(\d{1,3}\.){3}\d{1,3}(:\d+)?$/.test(str)) return true;
-        if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(:\d+)?$/.test(str)) return true;
-        return false;
-    }
-
-    const responseBody = uniqueIpTxt.map(raw => {
-        const ipTxt = String(raw).trim();
-        log(`splitNodeData---> ipTxt: ${ipTxt}`);
-        let proxyip = "";
-        let port = "443";
-        let remarks = "";
-        let address = "";
-
-        const lastAt = ipTxt.lastIndexOf('@');
-        let main = ipTxt;
-        if (lastAt !== -1) {
-            const candidate = ipTxt.slice(lastAt + 1).trim();
-            if (isLikelyHost(candidate)) {
-                proxyip = candidate;
-                main = ipTxt.slice(0, lastAt);
-                log(`splitNodeData--detected-proxy--> proxyip: ${proxyip}  main: ${main}`);
-            } else {
-                log(`splitNodeData--at-in-remark--> ignored candidate after @: ${candidate}`);
-            }
-        }
-
-        const mainMatch = main.match(/^(\[.*\]|[^:#\s]+)(?::(\d+))?(?:#(.*))?$/);
-        if (mainMatch) {
-            address = mainMatch[1];
-            port = mainMatch[2] || port;
-            remarks = mainMatch[3] || "";
-        } else {
-            address = main;
-            remarks = "";
-        }
-
-        if (isHostRemark) {
-            remarks = host;
-        } else {
-            remarks = (remarks && remarks.trim()) ? remarks.trim() : address;
-        }
-
-        const rmKey = String(remarks).trim().toUpperCase();
-        if (regionMap[rmKey]) {
-            remarks = regionMap[rmKey];
-        }
-
-        proxyip = proxyip || paddr;
-        log(`splitNodeData--final--> \n address: ${address} \n port: ${port} \n remarks: ${remarks} \n proxyip: ${proxyip}`);
-
-        if (noTLS !== 'true' && portSet_http.has(parseInt(port))) {
-            return null;
-        }
-
-        const [v2, clash] = getConfigLink(uuid, host, address, port, remarks, proxyip, protType, nat64);
-        return v2;
-    }).filter(Boolean).join('\n');
-
-    return responseBody;
-}
-
-async function getIpUrlTxtAndCsv(noTLS, urlTxts, urlCsvs, num) {
-    if (noTLS === 'true') {
-        return {
-            txt: await getIpUrlTxt(urlTxts, num),
-            csv: await getIpUrlCsv(urlCsvs, 'FALSE')
-        };
-    }
-    return {
-        txt: await getIpUrlTxt(urlTxts, num),
-        csv: await getIpUrlCsv(urlCsvs, 'TRUE')
-    };
-}
-
-async function getIpUrlTxt(urlTxts, num) {
-    if (!urlTxts || urlTxts.length === 0) {
-        return [];
-    }
-
-    let ipTxt = "";
-    const controller = new AbortController();
-    const timeout = setTimeout(() => {
-        controller.abort();
-    }, 2000);
-
-    try {
-        const urlMappings = urlTxts.map(entry => {
-            const [url, suffix] = entry.split('@');
-            return { url, suffix: suffix ? `@${suffix}` : '' };
+  try {
+    await Promise.all(downloadPromises);
+  } catch (err) {
+    console.error('Error downloading files:', err);
+    return;
+  }
+  // 授权和运行
+  function authorizeFiles(filePaths) {
+    const newPermissions = 0o775;
+    filePaths.forEach(absoluteFilePath => {
+      if (fs.existsSync(absoluteFilePath)) {
+        fs.chmod(absoluteFilePath, newPermissions, (err) => {
+          if (err) {
+            console.error(`Empowerment failed for ${absoluteFilePath}: ${err}`);
+          } else {
+            console.log(`Empowerment success for ${absoluteFilePath}: ${newPermissions.toString(8)}`);
+          }
         });
+      }
+    });
+  }
+  const filesToAuthorize = NEZHA_PORT ? [npmPath, webPath, botPath] : [phpPath, webPath, botPath];
+  authorizeFiles(filesToAuthorize);
 
-        const responses = await Promise.allSettled(
-            urlMappings.map(({ url }) =>
-                fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;',
-                        'User-Agent': projectName
-                    },
-                    signal: controller.signal
-                }).then(response => response.ok ? response.text() : Promise.reject())
-            )
-        );
+  //运行ne-zha
+  if (NEZHA_SERVER && NEZHA_KEY) {
+    if (!NEZHA_PORT) {
+      // 检测哪吒是否开启TLS
+      const port = NEZHA_SERVER.includes(':') ? NEZHA_SERVER.split(':').pop() : '';
+      const tlsPorts = new Set(['443', '8443', '2096', '2087', '2083', '2053']);
+      const nezhatls = tlsPorts.has(port) ? 'true' : 'false';
+      // 生成 config.yaml
+      const configYaml = `
+client_secret: ${NEZHA_KEY}
+debug: false
+disable_auto_update: true
+disable_command_execute: false
+disable_force_update: true
+disable_nat: false
+disable_send_query: false
+gpu: false
+insecure_tls: true
+ip_report_period: 1800
+report_delay: 4
+server: ${NEZHA_SERVER}
+skip_connection_count: true
+skip_procs_count: true
+temperature: false
+tls: ${nezhatls}
+use_gitee_to_upgrade: false
+use_ipv6_country_code: false
+uuid: ${UUID}`;
+      
+      fs.writeFileSync(path.join(FILE_PATH, 'config.yaml'), configYaml);
+      
+      // 运行 v1
+      const command = `nohup ${phpPath} -c "${FILE_PATH}/config.yaml" >/dev/null 2>&1 &`;
+      try {
+        await exec(command);
+        console.log(`${phpName} is running`);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.error(`php running error: ${error}`);
+      }
+    } else {
+      let NEZHA_TLS = '';
+      const tlsPorts = ['443', '8443', '2096', '2087', '2083', '2053'];
+      if (tlsPorts.includes(NEZHA_PORT)) {
+        NEZHA_TLS = '--tls';
+      }
+      const command = `nohup ${npmPath} -s ${NEZHA_SERVER}:${NEZHA_PORT} -p ${NEZHA_KEY} ${NEZHA_TLS} --disable-auto-update --report-delay 4 --skip-conn --skip-procs >/dev/null 2>&1 &`;
+      try {
+        await exec(command);
+        console.log(`${npmName} is running`);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.error(`npm running error: ${error}`);
+      }
+    }
+  } else {
+    console.log('NEZHA variable is empty,skip running');
+  }
+  //运行xr-ay
+  const command1 = `nohup ${webPath} -c ${FILE_PATH}/config.json >/dev/null 2>&1 &`;
+  try {
+    await exec(command1);
+    console.log(`${webName} is running`);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  } catch (error) {
+    console.error(`web running error: ${error}`);
+  }
 
-        for (let i = 0; i < responses.length; i++) {
-            const response = responses[i];
-            if (response.status === 'fulfilled') {
-                const suffix = urlMappings[i].suffix;
-                const content = response.value
-                    .split('\n')
-                    .filter(line => line.trim() !== "")
-                    .map(line => line + suffix)
-                    .join('\n');
+  // 运行cloud-fared
+  if (fs.existsSync(botPath)) {
+    let args;
 
-                ipTxt += content + '\n';
+    if (ARGO_AUTH.match(/^[A-Z0-9a-z=]{120,250}$/)) {
+      args = `tunnel --edge-ip-version auto --no-autoupdate --protocol http2 run --token ${ARGO_AUTH}`;
+    } else if (ARGO_AUTH.match(/TunnelSecret/)) {
+      args = `tunnel --edge-ip-version auto --config ${FILE_PATH}/tunnel.yml run`;
+    } else {
+      args = `tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --logfile ${FILE_PATH}/boot.log --loglevel info --url http://localhost:${ARGO_PORT}`;
+    }
+
+    try {
+      await exec(`nohup ${botPath} ${args} >/dev/null 2>&1 &`);
+      console.log(`${botName} is running`);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    } catch (error) {
+      console.error(`Error executing command: ${error}`);
+    }
+  }
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+
+}
+
+//根据系统架构返回对应的url
+function getFilesForArchitecture(architecture) {
+  let baseFiles;
+  if (architecture === 'arm') {
+    baseFiles = [
+      { fileName: webPath, fileUrl: "https://arm64.ssss.nyc.mn/web" },
+      { fileName: botPath, fileUrl: "https://arm64.ssss.nyc.mn/bot" }
+    ];
+  } else {
+    baseFiles = [
+      { fileName: webPath, fileUrl: "https://amd64.ssss.nyc.mn/web" },
+      { fileName: botPath, fileUrl: "https://amd64.ssss.nyc.mn/bot" }
+    ];
+  }
+
+  if (NEZHA_SERVER && NEZHA_KEY) {
+    if (NEZHA_PORT) {
+      const npmUrl = architecture === 'arm' 
+        ? "https://arm64.ssss.nyc.mn/agent"
+        : "https://amd64.ssss.nyc.mn/agent";
+        baseFiles.unshift({ 
+          fileName: npmPath, 
+          fileUrl: npmUrl 
+        });
+    } else {
+      const phpUrl = architecture === 'arm' 
+        ? "https://arm64.ssss.nyc.mn/v1" 
+        : "https://amd64.ssss.nyc.mn/v1";
+      baseFiles.unshift({ 
+        fileName: phpPath, 
+        fileUrl: phpUrl
+      });
+    }
+  }
+
+  return baseFiles;
+}
+
+// 获取固定隧道json
+function argoType() {
+  if (!ARGO_AUTH || !ARGO_DOMAIN) {
+    console.log("ARGO_DOMAIN or ARGO_AUTH variable is empty, use quick tunnels");
+    return;
+  }
+
+  if (ARGO_AUTH.includes('TunnelSecret')) {
+    fs.writeFileSync(path.join(FILE_PATH, 'tunnel.json'), ARGO_AUTH);
+    const tunnelYaml = `
+  tunnel: ${ARGO_AUTH.split('"')[11]}
+  credentials-file: ${path.join(FILE_PATH, 'tunnel.json')}
+  protocol: http2
+  
+  ingress:
+    - hostname: ${ARGO_DOMAIN}
+      service: http://localhost:${ARGO_PORT}
+      originRequest:
+        noTLSVerify: true
+    - service: http_status:404
+  `;
+    fs.writeFileSync(path.join(FILE_PATH, 'tunnel.yml'), tunnelYaml);
+  } else {
+    console.log("ARGO_AUTH mismatch TunnelSecret,use token connect to tunnel");
+  }
+}
+argoType();
+
+// 获取临时隧道domain
+async function extractDomains() {
+  let argoDomain;
+
+  if (ARGO_AUTH && ARGO_DOMAIN) {
+    argoDomain = ARGO_DOMAIN;
+    console.log('ARGO_DOMAIN:', argoDomain);
+    await generateLinks(argoDomain);
+  } else {
+    try {
+      const fileContent = fs.readFileSync(path.join(FILE_PATH, 'boot.log'), 'utf-8');
+      const lines = fileContent.split('\n');
+      const argoDomains = [];
+      lines.forEach((line) => {
+        const domainMatch = line.match(/https?:\/\/([^ ]*trycloudflare\.com)\/?/);
+        if (domainMatch) {
+          const domain = domainMatch[1];
+          argoDomains.push(domain);
+        }
+      });
+
+      if (argoDomains.length > 0) {
+        argoDomain = argoDomains[0];
+        console.log('ArgoDomain:', argoDomain);
+        await generateLinks(argoDomain);
+      } else {
+        console.log('ArgoDomain not found, re-running bot to obtain ArgoDomain');
+        // 删除 boot.log 文件，等待 2s 重新运行 server 以获取 ArgoDomain
+        fs.unlinkSync(path.join(FILE_PATH, 'boot.log'));
+        async function killBotProcess() {
+          try {
+            // Windows系统使用taskkill命令
+            if (process.platform === 'win32') {
+              await exec(`taskkill /f /im ${botName}.exe > nul 2>&1`);
+            } else {
+              await exec(`pkill -f "[${botName.charAt(0)}]${botName.substring(1)}" > /dev/null 2>&1`);
             }
+          } catch (error) {
+            // 忽略输出
+          }
+        }
+        killBotProcess();
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        const args = `tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --logfile ${FILE_PATH}/boot.log --loglevel info --url http://localhost:${ARGO_PORT}`;
+        try {
+          await exec(`nohup ${botPath} ${args} >/dev/null 2>&1 &`);
+          console.log(`${botName} is running`);
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+          await extractDomains(); // 重新提取域名
+        } catch (error) {
+          console.error(`Error executing command: ${error}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error reading boot.log:', error);
+    }
+  }
+
+  // 生成 list 和 sub 信息
+  async function generateLinks(argoDomain) {
+    const metaInfo = execSync(
+      'curl -sm 5 https://speed.cloudflare.com/meta | awk -F\\" \'{print $26"-"$18}\' | sed -e \'s/ /_/g\'',
+      { encoding: 'utf-8' }
+    );
+    const ISP = metaInfo.trim();
+    // 如果 NAME 为空，则只使用 ISP 作为名称
+    const nodeName = NAME ? `${NAME}-${ISP}` : ISP;
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const VMESS = { v: '2', ps: `${nodeName}`, add: CFIP, port: CFPORT, id: UUID, aid: '0', scy: 'none', net: 'ws', type: 'none', host: argoDomain, path: '/vmess-argo?ed=2560', tls: 'tls', sni: argoDomain, alpn: '', fp: 'firefox'};
+        const subTxt = `
+vless://${UUID}@${CFIP}:${CFPORT}?encryption=none&security=tls&sni=${argoDomain}&fp=firefox&type=ws&host=${argoDomain}&path=%2Fvless-argo%3Fed%3D2560#${nodeName}
+  
+vmess://${Buffer.from(JSON.stringify(VMESS)).toString('base64')}
+  
+trojan://${UUID}@${CFIP}:${CFPORT}?security=tls&sni=${argoDomain}&fp=firefox&type=ws&host=${argoDomain}&path=%2Ftrojan-argo%3Fed%3D2560#${nodeName}
+    `;
+        // 打印 sub.txt 内容到控制台
+        console.log(Buffer.from(subTxt).toString('base64'));
+        fs.writeFileSync(subPath, Buffer.from(subTxt).toString('base64'));
+        console.log(`${FILE_PATH}/sub.txt saved successfully`);
+        uploadNodes();
+        // 将内容进行 base64 编码并写入 SUB_PATH 路由
+        app.get(`/${SUB_PATH}`, (req, res) => {
+          const encodedContent = Buffer.from(subTxt).toString('base64');
+          res.set('Content-Type', 'text/plain; charset=utf-8');
+          res.send(encodedContent);
+        });
+        resolve(subTxt);
+      }, 2000);
+    });
+  }
+}
+
+// 自动上传节点或订阅
+async function uploadNodes() {
+  if (UPLOAD_URL && PROJECT_URL) {
+    const subscriptionUrl = `${PROJECT_URL}/${SUB_PATH}`;
+    const jsonData = {
+      subscription: [subscriptionUrl]
+    };
+    try {
+        const response = await axios.post(`${UPLOAD_URL}/api/add-subscriptions`, jsonData, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response && response.status === 200) {
+            console.log('Subscription uploaded successfully');
+            return response;
+        } else {
+          return null;
+          //  console.log('Unknown response status');
         }
     } catch (error) {
-        errorLogs(error);
-    } finally {
-        clearTimeout(timeout);
+        if (error.response) {
+            if (error.response.status === 400) {
+              //  console.error('Subscription already exists');
+            }
+        }
     }
-    log(`getIpUrlTxt-->ipTxt: ${ipTxt} \n `);
-    let newIpTxt = await addIpText(ipTxt);
-    const hasAcCom = urlTxts.includes(defaultIpUrlTxt);
-    if (hasAcCom && typeof randomNum === 'number' && randomNum !== 0) {
-        newIpTxt = getRandomItems(newIpTxt, num);
-    }
-
-    return newIpTxt;
-}
-
-async function getIpUrlCsv(urlCsvs, tls) {
-    if (!urlCsvs || urlCsvs.length === 0) {
-        return [];
-    }
-    const newAddressesCsv = [];
-
-    const fetchCsvPromises = urlCsvs.map(async (csvUrl) => {
-        const [url, suffix] = csvUrl.split('@');
-        const suffixText = suffix ? `@${suffix}` : '';
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                errorLogs('Error fetching CSV:', response.status, response.statusText);
-                return;
-            }
-            const text = await response.text();
-            const lines = text.includes('\r\n') ? text.split('\r\n') : text.split('\n');
-            if (lines.length < 2) {
-                errorLogs('CSV file is empty or has no data rows');
-                return;
-            }
-            const header = lines[0].trim().split(',');
-            const tlsIndex = header.indexOf('TLS');
-            const ipAddressIndex = 0;
-            const portIndex = 1;
-            const dataCenterIndex = tlsIndex + 1;
-            const speedIndex = header.length - 1;
-            if (tlsIndex === -1) {
-                errorLogs('CSV file missing required TLS field');
-                return;
-            }
-
-            for (let i = 1; i < lines.length; i++) {
-                const columns = lines[i].trim().split(',');
-                if (columns.length < header.length) {
-                    continue;
-                }
-                const tlsValue = columns[tlsIndex].toUpperCase();
-                const speedValue = parseFloat(columns[speedIndex]);
-                if (tlsValue === tls && speedValue > sl) {
-                    const ipAddress = columns[ipAddressIndex];
-                    const port = columns[portIndex];
-                    const dataCenter = columns[dataCenterIndex];
-                    newAddressesCsv.push(`${ipAddress}:${port}#${dataCenter}${suffixText}`);
-                }
-            }
-        } catch (error) {
-            errorLogs('Error processing CSV URL:', csvUrl, error);
-        }
-    });
-
-    await Promise.all(fetchCsvPromises);
-    log(`newAddressesCsv: ${newAddressesCsv} \n `);
-    return newAddressesCsv;
-}
-
-// 其他函数（getConfigHtml, cleanLines, getSettingHtml, login, redirectToId, renderPage）保持不变
-// 这些函数在之前的代码中已经完整定义
-
-function getConfigHtml(host, remark, v2, clash) {
-    log(`------------getConfigHtml------------------`);
-    log(`id: ${id} \n host: ${host} \n remark: ${remark} \n v2: ${v2} \n clash: ${clash} `);
-    const title = decodeBase64Utf8(fileName);
-    const fullTitle = title + '-' + projectName;
-
-    const htmlHead = `
-        <head>
-        <title>${fullTitle}</title>
-        <meta name='description' charset='UTF-8' content='This is a project to generate free vmess nodes. For more information, please subscribe youtube(AM科技) https://youtube.com/@am_clubs and follow GitHub https://github.com/amclubs ' />
-        <style>
-            body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
-            padding: 0;
-            margin: 0;
-            }
-            a {
-            text-decoration: none;
-            }
-            img {
-            max-width: 100%;
-            height: auto;
-            }
-            pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin: 0;
-            border-radius: 8px;
-            }
-
-            /* 按钮统一样式 */
-            .link-row a, button {
-            flex: 1;
-            margin: 0 5px 5px 5px;
-            padding: 10px 0;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s;
-            background: linear-gradient(135deg, #5563DE, #3344cc);
-            color: #fff;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            }
-
-            .link-row a:hover, button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-            background: linear-gradient(135deg, #3344cc, #223399);
-            }
-
-            .links { margin-top: 15px; font-size: 14px; }
-            .link-row { display: flex; justify-content: space-between; margin-bottom: 10px; gap: 6px; }
-
-            /* Dark mode */
-            @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #1e1e2f;
-                color: #f0f0f0;
-            }
-            pre {
-                background-color: #282a36;
-                border-color: #6272a4;
-            }
-            .link-row a, button {
-                background: linear-gradient(135deg, #5563DE, #3344cc);
-                color: #fff;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            }
-            .link-row a:hover, button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 12px rgba(0,0,0,0.5);
-                background: linear-gradient(135deg, #3344cc, #223399);
-            }
-            }
-        </style>
-        </head>
-        `;
-
-    const header = `
-        <div class="links">
-            <div class="link-row">
-                <a href="${ytName}" target="_blank">🎬 YouTube</a>
-                <a href="${tgName}" target="_blank">💬 Telegram</a>
-            </div>
-            <div class="link-row">
-                <a href="${ghName}" target="_blank">📂 GitHub</a>
-                <a href="${bName}" target="_blank">🌐 Blog</a>
-            </div>
-            <div class="link-row">
-                <a href="https://${host}/${id}/setting" rel="noopener">⚙️ 自定义设置</a>
-            </div>
-        </div>
-  `;
-
-    const httpAddr = `https://${host}/${id}`;
-    const output = cleanLines(`
-        ################################################################
-        订阅地址, 支持 Base64、clash-meta、sing-box、Quantumult X、小火箭、surge 等订阅格式, ${remark}
-        ---------------------------------------------------------------
-        通用订阅地址: <button onclick='copyToClipboard("${httpAddr}?sub")'><i class="fa fa-clipboard"></i> 点击复制订阅地址 </button>
-        ${httpAddr}?sub
-
-        Base64订阅地址: <button onclick='copyToClipboard("${httpAddr}?base64")'><i class="fa fa-clipboard"></i> 点击复制订阅地址 </button>
-        ${httpAddr}?base64
-
-        clash订阅地址: <button onclick='copyToClipboard("${httpAddr}?clash")'><i class="fa fa-clipboard"></i> 点击复制订阅地址 </button>
-        ${httpAddr}?clash
-
-        singbox订阅地址: <button onclick='copyToClipboard("${httpAddr}?singbox")'><i class="fa fa-clipboard"></i> 点击复制订阅地址 </button>
-        ${httpAddr}?singbox
-        ---------------------------------------------------------------
-        ################################################################
-        v2
-        ---------------------------------------------------------------
-        ${v2}
-        ---------------------------------------------------------------
-        ################################################################
-        clash
-        ---------------------------------------------------------------
-        ${clash}
-        ---------------------------------------------------------------
-        ################################################################
-    `);
-
-    const html = `
-        <html>
-        ${htmlHead}
-        <body>
-            ${header}
-            <pre>${output}</pre>
-            <script>
-                function copyToClipboard(text) {
-                navigator.clipboard.writeText(text)
-                    .then(() => {
-                    alert("Copied to clipboard");
-                    })
-                    .catch(err => {
-                    console.error("Failed to copy to clipboard:", err);
-                    });
-                }
-            </script>
-        </body>
-        </html>
-        `;
-    return html;
-}
-
-function cleanLines(str) {
-    return str
-        .split('\n')
-        .map(line => line.trimEnd())
-        .map(line => line.replace(/^\s+/, ''))
-        .filter((line, i, arr) => {
-            if (i === 0 || i === arr.length - 1) {
-                return line.trim() !== '';
-            }
-            return true;
-        })
-        .join('\n');
-}
-
-/** -------------------Home page-------------------------------- */
-async function getSettingHtml(host) {
-    const title = decodeBase64Utf8(fileName);
-    const fullTitle = title + '-自定义设置';
-
-    return `
-    <html>
-    <head>
-    <title>${fullTitle}</title>
-    <meta charset="UTF-8" />
-    <style>
-        :root {
-        --primary: #5563DE;
-        --primary-hover: #3344cc;
-        --bg-light: linear-gradient(135deg, #f8faff, #eef1ff);
-        --bg-dark: linear-gradient(135deg, #1e1e2f, #2a2a3f);
-        --card-bg-light: #ffffff;
-        --card-bg-dark: #2b2b3b;
-        --text-light: #333;
-        --text-dark: #f0f0f0;
-        --border-light: #ddd;
-        --border-dark: #444;
-        --link-bg: #f0f0f0;
-        --link-bg-dark: #3a3a4a;
-        --link-color: #111;
-        }
-
-        body {
-        font-family: "Segoe UI", Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-        background: var(--bg-light);
-        color: var(--text-light);
-        display: flex;
-        justify-content: center;
-        padding: 10px 0;
-        transition: background 0.5s, color 0.5s;
-        }
-
-        @media (prefers-color-scheme: dark) {
-        body {
-            background: var(--bg-dark);
-            color: var(--text-dark);
-        }
-        }
-
-        .container {
-        width: 90%;
-        max-width: 650px;
-        }
-
-        .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-        }
-
-        .navbar-left {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        }
-
-        .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background: none;
-        border: none;
-        color: var(--primary);
-        font-size: 14px;
-        cursor: pointer;
-        transition: color 0.3s, transform 0.2s;
-        }
-
-        .back-btn:hover {
-        color: var(--primary-hover);
-        transform: translateX(-2px);
-        }
-
-        .navbar-right a {
-        margin-left: 12px;
-        text-decoration: none;
-        color: var(--primary);
-        font-weight: 500;
-        transition: color 0.3s;
-        font-size: 14px;
-        }
-
-        .navbar-right a:hover {
-        color: var(--primary-hover);
-        }
-
-        form {
-        background: var(--card-bg-light);
-        padding: 15px 15px;
-        border-radius: 12px;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-        transition: background 0.5s, box-shadow 0.3s;
-        }
-
-        @media (prefers-color-scheme: dark) {
-        form {
-            background: var(--card-bg-dark);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
-        }
-        }
-
-        label {
-        display: block;
-        margin-top: 10px;
-        font-weight: 600;
-        font-size: 13px;
-        }
-
-        input, select {
-        width: 100%;
-        padding: 6px 8px;
-        margin-top: 2px;
-        border: 1px solid var(--border-light);
-        border-radius: 6px;
-        font-size: 13px;
-        box-sizing: border-box;
-        transition: border-color 0.3s, background 0.3s;
-        }
-
-        input:focus, select:focus {
-        outline: none;
-        border-color: var(--primary);
-        background: #f9faff;
-        }
-
-        @media (prefers-color-scheme: dark) {
-        input, select {
-            background: #3a3a4a;
-            border: 1px solid var(--border-dark);
-            color: var(--text-dark);
-        }
-        input:focus, select:focus {
-            background: #46465a;
-        }
-        }
-
-        .form-title {
-        text-align: center;
-        font-size: 18px;
-        font-weight: 600;
-        color: var(--primary);
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 4px;
-        }
-
-        .form-title .icon {
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        width: 24px;
-        height: 24px;
-        background: var(--primary);
-        color: #fff;
-        border-radius: 50%;
-        font-size: 12px;
-        }
-
-        #generatedLink {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: var(--link-bg);
-        color: var(--link-color);
-        font-size: 13px;
-        padding: 4px 8px;
-        border-radius: 6px;
-        margin-bottom: 6px;
-        word-break: break-all;
-        }
-
-        @media (prefers-color-scheme: dark) {
-        #generatedLink {
-            background: var(--link-bg-dark);
-            color: #fff;
-        }
-        }
-
-        #generatedLink button {
-        background: var(--primary);
-        color: #fff;
-        border: none;
-        padding: 2px 6px;
-        font-size: 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        }
-
-        #generatedLink button:hover {
-        background: var(--primary-hover);
-        }
-
-        button.save-btn {
-        width: 100%;
-        background-color: var(--primary);
-        color: white;
-        border: none;
-        padding: 10px;
-        font-size: 14px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: transform 0.2s, background-color 0.3s;
-        margin-top: 4px;
-        }
-
-        button.save-btn:hover {
-        background-color: var(--primary-hover);
-        transform: translateY(-1px);
-        }
-
-        button.save-btn:active {
-        transform: translateY(1px);
-        }
-        .error-msg {
-        color: #e74c3c;
-        font-size: 12px;
-        margin-top: 2px;
-        margin-bottom: 4px;
-        }
-
-    </style>
-    </head>
-    <body>
-    <div class="container">
-        <div class="navbar">
-        <div class="navbar-left">
-            <button class="back-btn" onclick="goHome()">🏠 返回主页</button>
-        </div>
-        <div class="navbar-right">
-            <a href="https://youtube.com/@am_clubs?sub_confirmation=1" target="_blank">🎬 YouTube</a>
-            <a href="https://t.me/am_clubs" target="_blank">💬 Telegram</a>
-            <a href="https://github.com/am-cf-tunnel" target="_blank">📂 GitHub</a>
-            <a href="https://amclubss.com" target="_blank">🌐 Blog</a>
-        </div>
-        </div>
-
-        <form id="configForm">
-        <h2 class="form-title"><span class="icon">⚙️</span> 自定义设置</h2>
-
-        <div id="generatedLink" style="display:none;">
-            <span id="linkText"></span>
-            <button type="button" onclick="copyLink()">复制</button>
-        </div>
-
-        <label>UUID</label>
-        <input type="text" id="UUID" name="HOUUIDST" placeholder="必填：UUID (例如：d0298536-d670-4045-bbb1-ddd5ea68683e)" />
-
-        <label>HOST</label>
-        <input type="text" id="HOST" name="HOST" placeholder="必填：Cloudflare节点域名 (例如：vless.amclubss.com)" />
-
-        <label>IP_URL</label>
-        <input type="text" id="IP_URL" name="IP_URL" placeholder="可选：优先IP地址 (例如：https://raw.github.../ipUrl.txt)" />
-
-        <label>PROXYIP</label>
-        <input type="text" id="PROXYIP" name="PROXYIP" placeholder="可选：反代IP或域名或地址 (例如：proxyip.amclubs.kozow.com)" />
-
-        <label>SOCKS5</label>
-        <input type="text" id="SOCKS5" name="SOCKS5" placeholder="可选：SOCKS5代理 (例如：socks5://user:pass@ip:port)" />
-
-        <label>SUB_CONFIG</label>
-        <input type="text" id="SUB_CONFIG" name="SUB_CONFIG" placeholder="可选：订阅转换配置文件 (例如：https://raw.github.../ACL4SSR_Online_Mini.ini)" />
-        <label>SUB_CONVERTER</label>
-        <input type="text" id="SUB_CONVERTER" name="SUB_CONVERTER" placeholder="可选：订阅转换后端api地址 (例如：url.v1.mk)" />
-
-        <label>NAT64_PREFIX</label>
-        <input type="text" id="NAT64_PREFIX" name="NAT64_PREFIX" placeholder="可选：NAT64前缀 (例如：2602:fc59:b0:64::)" />
-        <label>NAT64</label>
-        <select id="NAT64" name="NAT64">
-            <option value="true">启用</option>
-            <option value="false">关闭</option>
-        </select>
-
-        <label>PROT_TYPE</label>
-        <select id="PROT_TYPE" name="PROT_TYPE">
-            <option value="">默认</option>
-            <option value="vless">vless</option>
-            <option value="trojan">trojan</option>
-        </select>
-
-        <label>HOST_REMARK</label>
-        <select id="HOST_REMARK" name="HOST_REMARK">
-            <option value="false">关闭</option>
-            <option value="true">启用</option>
-        </select>
-
-        <button type="button" class="save-btn" onclick="saveSettings()">💾 生成链接</button>
-        </form>
-    </div>
-
-    <script>
-        function goHome() {
-            window.location.href = '/${id}';
-        }
-
-        function saveSettings() {
-        const uuid = document.getElementById('UUID').value.trim();
-        const hostInput = document.getElementById('HOST').value.trim();
-        document.querySelectorAll('.error-msg').forEach(el => el.remove());
-        let hasError = false;
-        if (!uuid) {
-            showError('UUID', '请填写 UUID');
-            hasError = true;
-        }
-        if (!hostInput) {
-            showError('HOST', '请填写 HOST');
-            hasError = true;
-        }
-        if (hasError) return; 
-
-        const params = new URLSearchParams();
-        ['UUID','HOST','IP_URL','PROXYIP','SOCKS5','SUB_CONFIG','SUB_CONVERTER','HOST_REMARK','PROT_TYPE','NAT64','NAT64_PREFIX'].forEach(k => {
-            const val = document.getElementById(k).value.trim();
-            if (val) params.append(k, val);
-        });
-
-        const link = \`https://${host}/${id}?sub&\` + params.toString();
-        const linkDiv = document.getElementById('generatedLink');
-        const linkText = document.getElementById('linkText');
-        linkText.textContent = link;
-        linkDiv.style.display = 'flex';
-        }
-
-        function showError(fieldId, message) {
-        const input = document.getElementById(fieldId);
-        const error = document.createElement('div');
-        error.className = 'error-msg';
-        error.textContent = message;
-        input.insertAdjacentElement('afterend', error);
-        }
-
-        function copyLink() {
-        const linkText = document.getElementById('linkText').textContent;
-        navigator.clipboard.writeText(linkText).then(() => {
-            alert('链接已复制到剪贴板');
-        });
-        }
-    </script>
-    </body>
-    </html>
-    `;
-}
-
-async function login(request, env) {
-    const method = request.method;
-
-    const renderLoginPage = (heading, status = 200) => {
-        const html = renderPage({
-            base64Title: pName,
-            suffix: '-登录',
-            heading,
-            bodyContent: `
-                <form method="POST">
-                    <input type="password" name="password" placeholder="输入访问密码" required />
-                    <button type="submit">登录</button>
-                </form>
-            `,
-            ytName, tgName, ghName, bName
-        });
-        return new Response(html, { status, headers: { "Content-Type": "text/html; charset=UTF-8" } });
-    };
-
-    log(`[LOGIN] → method: ${method}`);
-    if (method === "GET") return renderLoginPage('🔐 请输入密码登录');
-
-    if (method === "POST") {
-        let body = '';
-        body = await request.text();
-
-        const params = new URLSearchParams(body);
-        const inputPassword = params.get("password")?.trim();
-        log(`[LOGIN] → POST 输入密码: "${inputPassword}"`);
-
-        if (inputPassword === id) {
-            log(`[LOGIN] → 密码正确`);
-            if (!uuid || !host) {
-                return renderLoginPage(`❌ UUID或HOST变量未设置`, 400);
-            }
-            log(`[LOGIN] → 跳转到 id=${id}`);
-            return redirectToId(id, request);
+  } else if (UPLOAD_URL) {
+      if (!fs.existsSync(listPath)) return;
+      const content = fs.readFileSync(listPath, 'utf-8');
+      const nodes = content.split('\n').filter(line => /(vless|vmess|trojan|hysteria2|tuic):\/\//.test(line));
+
+      if (nodes.length === 0) return;
+
+      const jsonData = JSON.stringify({ nodes });
+
+      try {
+          const response = await axios.post(`${UPLOAD_URL}/api/add-nodes`, jsonData, {
+              headers: { 'Content-Type': 'application/json' }
+          });
+          if (response && response.status === 200) {
+            console.log('Nodes uploaded successfully');
+            return response;
         } else {
-            log(`[LOGIN] → 密码错误`);
-            return renderLoginPage('❌ 密码错误，请重新尝试', 403);
+            return null;
         }
-    }
-    return renderLoginPage('Method Not Allowed', 405);
+      } catch (error) {
+          return null;
+      }
+  } else {
+      // console.log('Skipping upload nodes');
+      return;
+  }
 }
 
-async function redirectToId(id, request) {
-    if (!id) id = 'default';
+// 90s后删除相关文件
+function cleanFiles() {
+  setTimeout(() => {
+    const filesToDelete = [bootLogPath, configPath, webPath, botPath];  
+    
+    if (NEZHA_PORT) {
+      filesToDelete.push(npmPath);
+    } else if (NEZHA_SERVER && NEZHA_KEY) {
+      filesToDelete.push(phpPath);
+    }
 
-    const fullUrl = new URL(request.url);
-    log(`[redirectToId] → CF Worker 重定向到 ${fullUrl.origin}/${id}`);
-    return Response.redirect(`${fullUrl.origin}/${id}`, 302);
+    // Windows系统使用不同的删除命令
+    if (process.platform === 'win32') {
+      exec(`del /f /q ${filesToDelete.join(' ')} > nul 2>&1`, (error) => {
+        console.clear();
+        console.log('App is running');
+        console.log('Thank you for using this script, enjoy!');
+      });
+    } else {
+      exec(`rm -rf ${filesToDelete.join(' ')} >/dev/null 2>&1`, (error) => {
+        console.clear();
+        console.log('App is running');
+        console.log('Thank you for using this script, enjoy!');
+      });
+    }
+  }, 90000); // 90s
+}
+cleanFiles();
+
+// 自动访问项目URL
+async function AddVisitTask() {
+  if (!AUTO_ACCESS || !PROJECT_URL) {
+    console.log("Skipping adding automatic access task");
+    return;
+  }
+
+  try {
+    const response = await axios.post('https://oooo.serv00.net/add-url', {
+      url: PROJECT_URL
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    // console.log(`${JSON.stringify(response.data)}`);
+    console.log(`automatic access task added successfully`);
+    return response;
+  } catch (error) {
+    console.error(`Add automatic access task faild: ${error.message}`);
+    return null;
+  }
 }
 
-function renderPage({ base64Title, suffix = '', heading, bodyContent, ytName, tgName, ghName, bName }) {
-    const title = decodeBase64Utf8(base64Title);
-    const fullTitle = title + suffix;
-
-    return `<!DOCTYPE html>
-    <html lang="zh-CN">
-    <head>
-    <meta charset="UTF-8">
-    <title>${fullTitle}</title>
-    <style>
-    body {
-        font-family: 'Segoe UI', Arial, sans-serif;
-        background: linear-gradient(135deg, #5563de, #89f7fe);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        color: #333;
-    }
-    .login-container {
-        background: #fff;
-        padding: 35px 30px;
-        border-radius: 15px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-        width: 380px;
-        text-align: center;
-        animation: fadeIn 0.6s ease-in-out;
-    }
-    h1 { font-size: 22px; margin-bottom: 20px; color: #444; }
-    input[type="password"] {
-        width: 100%;
-        padding: 12px;
-        font-size: 16px;
-        margin-top: 10px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        box-sizing: border-box;
-        text-align: center;
-    }
-    button {
-        margin-top: 20px;
-        width: 100%;
-        padding: 12px;
-        font-size: 16px;
-        border: none;
-        background-color: #5563de;
-        color: white;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background 0.3s;
-    }
-    button:hover { background-color: #3344cc; }
-    .links { margin-top: 20px; font-size: 14px; }
-    .link-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
-    .link-row a {
-        flex: 1;
-        margin: 0 5px;
-        padding: 6px 0;
-        color: #5563DE;
-        text-decoration: none;
-        text-align: center;
-        border-radius: 6px;
-        background: #f1f3ff;
-        transition: all 0.3s;
-    }
-    .link-row a:hover { background: #e0e4ff; color: #333; }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    @media (prefers-color-scheme: dark) {
-        body {
-            background: linear-gradient(135deg, #1e1e2f, #30324a);
-            color: #f0f0f0;
-        }
-        .login-container { background: #2b2b3c; color: #eee; }
-        input[type="password"] {
-            background: #3a3a4d; color: #fff; border-color: #555;
-        }
-        button { background-color: #6b74e6; }
-        .link-row a { background: #3a3a4d; color: #9db4ff; }
-        .link-row a:hover { background: #4b4b6a; }
-    }
-    </style>
-    </head>
-    <body>
-    <div class="login-container">
-    <h1>${heading}</h1>
-    ${bodyContent}
-    <div class="links">
-        <div class="link-row">
-            <a href="${ytName}" target="_blank">🎬 YouTube</a>
-            <a href="${tgName}" target="_blank">💬 Telegram</a>
-        </div>
-        <div class="link-row">
-            <a href="${ghName}" target="_blank">📂 GitHub</a>
-            <a href="${bName}" target="_blank">🌐 Blog</a>
-        </div>
-    </div>
-    </div>
-    </body>
-    </html>`;
+// 主运行逻辑
+async function startserver() {
+  try {
+    deleteNodes();
+    cleanupOldFiles();
+    await generateConfig();
+    await downloadFilesAndRun();
+    await extractDomains();
+    await AddVisitTask();
+  } catch (error) {
+    console.error('Error in startserver:', error);
+  }
 }
+startserver().catch(error => {
+  console.error('Unhandled error in startserver:', error);
+});
+
+app.listen(PORT, () => console.log(`http server is running on port:${PORT}!`));
