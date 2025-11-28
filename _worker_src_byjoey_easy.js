@@ -208,7 +208,7 @@ export default {
 			}
 
 			fakeUserID = await getFakeUserID(userID);
-			fakeHostName = fakeUserID.slice(6, 9) + "." + fakeUserID.slice(13, 19);
+			fakeHostName = fakeUserID.slice(5, 8) + "." + fakeUserID.slice(13, 16);
 			console.log(`userID: ${userID}`);
 			console.log(`fakeUserID: ${fakeUserID}`);
 			// Handle routes based on the path
