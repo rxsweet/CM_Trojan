@@ -29,12 +29,8 @@ let dohURL = atob('aHR0cHM6Ly9za3kucmV0aGlua2Rucy5jb20vMTotUGZfX19fXzlfOEFfQU1BS
 
 // Preferred address API interface
 let ipUrl = ['https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt',];
-let ipUrlTxt = [
-	atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVsL21haW4vaXB2NC50eHQ=')
-];
-let ipUrlCsv = [
-	// atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVsL21haW4vaXB2NC5jc3Y=')
-];
+let ipUrlTxt = [];
+let ipUrlCsv = [];
 // Preferred addresses with optional TLS subscription
 let ipLocal = [];
 let noTLS = 'false';
@@ -67,7 +63,7 @@ let isBase64 = true;
 let botToken = '';
 let chatID = '';
 
-let projectName = atob('YW1jbHVicy9hbS1jZi10cm9qYW4=');
+let projectName = 'rxtest';
 let ytName = '333';
 const httpPattern = /^http(s)?:\/\/.+/;
 
@@ -2200,6 +2196,6 @@ async function socks5Connect(ipType, remoteIp, remotePort, log) {
 
 /** -------------------Home page-------------------------------- */
 async function nginx() {
-	const text = `hello rx`
+	const text = `hello world!`
 	return text;
 }
