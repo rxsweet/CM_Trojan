@@ -223,11 +223,11 @@ export default {
 					});
 				}
 
-				case `/${fakeUserID}`: {
+				//case `/${fakeUserID}`: {
 					// Disguise UUID node generation
-					const fakeConfig = await getchannelConfig(userID, host, 'CF-FAKE-UA', url);
-					return new Response(fakeConfig, { status: 200 });
-				}
+					//const fakeConfig = await getchannelConfig(userID, host, 'CF-FAKE-UA', url);
+					//return new Response(fakeConfig, { status: 200 });
+				//}
 
 				case `/${userID}`: {
 					// Handle real UUID requests and get node info
@@ -1374,6 +1374,7 @@ async function getSubscribeNode(userAgent, _url, host, fakeHostName, fakeUserID,
 	let responseBody = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserID, userAgent);
 	// console.log(`getSubscribeNode---> responseBody: ${responseBody} `);
 
+/*
 	if (!userAgent.includes(('CF-FAKE-UA').toLowerCase())) {
 
 		let url = `https://${host}/${fakeUserID}`;
@@ -1395,7 +1396,8 @@ async function getSubscribeNode(userAgent, _url, host, fakeHostName, fakeUserID,
 		responseBody = await response.text();
 		//console.log(`getSubscribeNode---> url: ${url} `);
 	}
-
+ */
+    responseBody = `hello`;
 	return responseBody;
 }
 
