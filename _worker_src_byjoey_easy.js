@@ -6,7 +6,7 @@ import { connect } from 'cloudflare:sockets';
 
 // Generate your own UUID using the following command in PowerShell:
 // Powershell -NoExit -Command "[guid]::NewGuid()"
-let userID = 'e1ed7a13-7601-4882-925c-ffe65a6746c2';
+let userID = 'e7db700c-d6b5-4321-99cb-a343a7660f71';
 let pwd;
 let kvPWD;
 
