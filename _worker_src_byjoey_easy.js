@@ -1,6 +1,7 @@
+//原版https://github.com/amclubs/am-cf-trojan/blob/fc7fbce574a3e19187e5b8f864e0483d4a9db6d9/_worker.src.js
+//自己修改现用版：_worker源码old版_单url.js
 
 /*Obfuscate-rx*/
-//网址后面添加读取下载：?sub  ?base64  ?clash  ?singbox   ?sub&IP_URL=https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt
 // @ts-ignore
 import { connect } from 'cloudflare:sockets';
 
@@ -11,11 +12,14 @@ let pwd;
 let kvPWD;
 
 // Proxy IPs to choose from
-let proxyIPs = [];
+let proxyIPs = [
+	'proxyip.amclubs.camdvr.org',
+	'proxyip.amclubs.kozow.com'
+];
 // Randomly select a proxy IP from the list
 let proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
 let proxyPort = 443;
-let proxyIpTxt = '';
+let proxyIpTxt = atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVsL21haW4vcHJveHlpcC50eHQ=');
 
 // Setting the socks5 will ignore proxyIP
 // Example:  user:pass@host:port  or  host:port
@@ -25,18 +29,24 @@ let parsedSocks5 = {};
 
 // https://cloudflare-dns.com/dns-query or https://dns.google/dns-query
 // DNS-over-HTTPS URL
-let dohURL = atob('aHR0cHM6Ly9za3kucmV0aGlua2Rucy5jb20vMTotUGZfX19fXzlfOEFfQU1BSWdFOGtNQUJWRERtS09IVEFLZz0=');
+let dohURL = 'https://sky.rethinkdns.com/1:-Pf_____9_8A_AMAIgE8kMABVDDmKOHTAKg=';
 
 // Preferred address API interface
-let ipUrl = ['https://raw.githubusercontent.com/rxsweet/cfip/main/ipUrl.txt',];
-let ipUrlTxt = [];
-let ipUrlCsv = [];
+let ipUrl = [
+
+];
+let ipUrlTxt = [
+	atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVsL21haW4vaXB2NC50eHQ=')
+];
+let ipUrlCsv = [
+	// atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVsL21haW4vaXB2NC5jc3Y=')
+];
 // Preferred addresses with optional TLS subscription
 let ipLocal = [];
 let noTLS = 'false';
 let sl = 5;
 
-let tagName = '111';
+let tagName = atob('YW1jbHVicw==');
 let subUpdateTime = 6; // Subscription update time in hours
 let timestamp = 4102329600000; // Timestamp for the end date (2099-12-31)
 let total = 99 * 1125899906842624; // PB (perhaps referring to bandwidth or total entries)
@@ -56,15 +66,15 @@ let fakeHostName;
 // Subscription and conversion details
 let subProtocol = 'https';
 let subConverter = 'url.v1.mk'; // Subscription conversion backend using Sheep's function
-let subConfig = "https://raw.githubusercontent.com/rxsweet/all/main/githubTools/cfClashConfig_cn.ini"; // Subscription profile
-let fileName = 'rx';
+let subConfig = "https://raw.githubusercontent.com/amclubs/ACL4SSR/main/Clash/config/ACL4SSR_Online_Full_MultiMode.ini"; // Subscription profile
+let fileName = 'AM%E7%A7%91%E6%8A%80';
 let isBase64 = true;
 
 let botToken = '';
 let chatID = '';
 
-let projectName = 'rxtest';
-let ytName = '333';
+let projectName = atob('YW1jbHVicy9hbS1jZi10cm9qYW4=');
+let ytName = atob('aHR0cHM6Ly95b3V0dWJlLmNvbS9AYW1fY2x1YnM=');
 const httpPattern = /^http(s)?:\/\/.+/;
 
 // if (!isValidUUID(userID)) {
@@ -72,6 +82,12 @@ const httpPattern = /^http(s)?:\/\/.+/;
 // }
 
 export default {
+	/**
+	 * @param {import("@cloudflare/workers-types").Request} request
+	 * @param {{UUID: string, PROXYIP: string, DNS_RESOLVER_URL: string, NODE_ID: int, API_HOST: string, API_TOKEN: string}} env
+	 * @param {import("@cloudflare/workers-types").ExecutionContext} ctx
+	 * @returns {Promise<Response>}
+	 */
 	async fetch(request, env, ctx) {
 		try {
 			// Destructure environment variables for clarity
@@ -232,7 +248,7 @@ export default {
 				case `/${userID}`: {
 					// Handle real UUID requests and get node info
 					await sendMessage(
-						`#获取 ${fileName}`,
+						`#获取订阅 ${fileName}`,
 						request.headers.get('CF-Connecting-IP'),
 						`UA: ${userAgent}\n域名: ${url.hostname}\n入口: ${url.pathname + url.search}`
 					);
@@ -1030,17 +1046,17 @@ async function getchannelConfig(userID, host, userAgent, _url) {
 }
 
 function getHtmlResponse(socks5Enable, userID, host, v2ray, clash) {
-	const subRemark = `xxx`;
-	let proxyIPRemark = `xxx`;
+	const subRemark = `IP_LOCAL/IP_URL/IP_URL_TXT/IP_URL_CSV`;
+	let proxyIPRemark = `PROXYIP: ${proxyIP}`;
 
 	if (socks5Enable) {
-		proxyIPRemark = `x`;
+		proxyIPRemark = `socks5: ${parsedSocks5.hostname}:${parsedSocks5.port}`;
 	}
 
-	let remark = `x`;
+	let remark = `您的订阅节点由设置变量 ${subRemark} 提供, 当前使用反代是${proxyIPRemark}`;
 
 	if (!proxyIP && !socks5Enable) {
-		remark = `x`;
+		remark = `您的订阅节点由设置变量 ${subRemark} 提供, 当前没设置反代, 推荐您设置PROXYIP变量或SOCKS5变量或订阅连接带proxyIP`;
 	}
 
 	return getConfigHtml(userID, host, remark, v2ray, clash);
@@ -1272,7 +1288,7 @@ function getConfigLink(uuid, host, address, port, remarks, proxyip) {
 	let tls = ['tls', true];
 	if (host.includes('.workers.dev') || host.includes('pages.dev')) {
 		path = `/${host}${path}`;
-		remarks += ' x！';
+		remarks += ' 请通过绑定自定义域名订阅！';
 	}
 
 	const v2ray = getV2rayLink({ protocolType, host, uuid, address, port, remarks, encryption, path, fingerprint, tls });
@@ -1341,17 +1357,118 @@ function getClashLink(protocolType, host, address, port, uuid, path, tls, finger
  */
 function getConfigHtml(userID, host, remark, v2ray, clash) {
 	// HTML Head with CSS and FontAwesome library
-	const htmlHead = `hello`;
+	const htmlHead = `
+    <head>
+      <title>am-cf-tunnel(AM科技)</title>
+      <meta name='description' content='This is a project to generate free vmess nodes. For more information, please subscribe youtube(AM科技) https://youtube.com/@AM_CLUB and follow GitHub https://github.com/amclubs ' />
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f0f0f0;
+          color: #333;
+          padding: 0;
+          margin: 0;
+        }
+        a {
+          color: #1a0dab;
+          text-decoration: none;
+        }
+        img {
+          max-width: 100%;
+          height: auto;
+        }
+        pre {
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          background-color: #fff;
+          border: 1px solid #ddd;
+          padding: 10px;
+          margin: 0;
+        }
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+          body {
+            background-color: #333;
+            color: #f0f0f0;
+          }
+          a {
+            color: #9db4ff;
+          }
+          pre {
+            background-color: #282a36;
+            border-color: #6272a4;
+          }
+        }
+      </style>
+    </head>
+  `;
 
 	// Prepare header string with left alignment
-	const header = `hello`;
+	const header = `
+		<p align="left" style="padding-left: 20px; margin-top: 20px;">
+		Telegram交流群 点击加入，技术大佬~在线交流</br>
+		<a href="https://t.me/am_clubs" target="_blank">https://t.me/am_clubs</a>
+		</br></br>
+		GitHub项目地址 点击进入，点下星星给个Star!Star!Star!</br>
+		<a href="https://github.com/${projectName}" target="_blank">https://github.com/${projectName}</a>
+		</br></br>
+		YouTube频道 点击订阅频道，观看更多技术教程</br>
+		<a href="${ytName}?sub_confirmation=1" target="_blank">${ytName}</a>
+		</p>
+  `;
 
 	// Prepare the output string
 	const httpAddr = `https://${host}/${userID}`;
-	const output = `hello`;
+	const output = `
+################################################################
+订阅地址, 支持 Base64、clash-meta、sing-box、Quantumult X、小火箭、surge 等订阅格式, ${remark}
+---------------------------------------------------------------
+通用订阅地址: <button onclick='copyToClipboard("${httpAddr}?sub")'><i class="fa fa-clipboard"></i> 点击复制订阅地址 </button>
+${httpAddr}?sub
+
+Base64订阅地址: <button onclick='copyToClipboard("${httpAddr}?base64")'><i class="fa fa-clipboard"></i> 点击复制订阅地址 </button>
+${httpAddr}?base64
+
+clash订阅地址: <button onclick='copyToClipboard("${httpAddr}?clash")'><i class="fa fa-clipboard"></i> 点击复制订阅地址 </button>
+${httpAddr}?clash
+
+singbox订阅地址: <button onclick='copyToClipboard("${httpAddr}?singbox")'><i class="fa fa-clipboard"></i> 点击复制订阅地址 </button>
+${httpAddr}?singbox
+---------------------------------------------------------------
+################################################################
+v2ray
+---------------------------------------------------------------
+${v2ray}
+---------------------------------------------------------------
+################################################################
+clash-meta
+---------------------------------------------------------------
+${clash}
+---------------------------------------------------------------
+################################################################
+  `;
 
 	// Final HTML
-	const html = `hello`;
+	const html = `
+<html>
+${htmlHead}
+<body>
+  ${header}
+  <pre>${output}</pre>
+  <script>
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          alert("Copied to clipboard");
+        })
+        .catch(err => {
+          console.error("Failed to copy to clipboard:", err);
+        });
+    }
+  </script>
+</body>
+</html>
+  `;
 
 	return html;
 }
@@ -1389,7 +1506,7 @@ async function getSubscribeNode(userAgent, _url, host, fakeHostName, fakeUserID,
 		}
 		const response = await fetch(url, {
 			headers: {
-				'User-Agent': `${userAgent} cf-tro/rx`
+				'User-Agent': `${userAgent} am-cf-tunnel/amclubs`
 			}
 		});
 		responseBody = await response.text();
@@ -1680,7 +1797,95 @@ async function showKVPage(env) {
 	}
 	const value = await getKVData(env);
 	return new Response(
-		`hello`,
+		`<!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8"> 
+        <title>${fileName}</title>
+        <style>
+          html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+            font-family: Arial, sans-serif;
+          }
+
+          .container {
+            text-align: center; 
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            width: 400px;
+          }
+
+          h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+          }
+
+          textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+          }
+
+          button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+          }
+
+          button:hover {
+            background-color: #45a049;
+          }
+
+          #saveStatus {
+            color: green;
+            margin-top: 10px;
+          }
+        </style>
+        <script>
+          async function fetchData() {
+            const response = await fetch('/${userID}/get');
+            const text = await response.text();
+            document.getElementById('value').value = text;
+          }
+
+          async function saveData() {
+            const value = document.getElementById('value').value;
+            const response = await fetch('/${userID}/set', { method: 'POST', body: value });
+            const responseText = await response.text();
+
+            document.getElementById('saveStatus').innerText = responseText;
+          }
+        </script>
+      </head>
+      <body>
+        <div class="container">
+          <h1>UUID 页面</h1>
+          <label for="key">Key:</label>
+          <input type="text" id="key" value="${MY_KV_UUID_KEY}" readonly />
+          <br/><br/>
+          <label for="value">Value:</label>
+          <textarea id="value">${value || ''}</textarea>
+          <br/><br/>
+          <button onclick="saveData()">Save</button>
+          <div id="saveStatus"></div>
+        </div>
+      </body>
+    </html>`,
 		{
 			headers: { 'Content-Type': 'text/html; charset=UTF-8' },
 			status: 200,
@@ -2196,6 +2401,32 @@ async function socks5Connect(ipType, remoteIp, remotePort, log) {
 
 /** -------------------Home page-------------------------------- */
 async function nginx() {
-	const text = `hello world!`
+	const text = `
+	<!DOCTYPE html>
+	<html>
+	<head>
+	<title>Welcome to nginx!</title>
+	<style>
+		body {
+			width: 35em;
+			margin: 0 auto;
+			font-family: Tahoma, Verdana, Arial, sans-serif;
+		}
+	</style>
+	</head>
+	<body>
+	<h1>Welcome to nginx!</h1>
+	<p>If you see this page, the nginx web server is successfully installed and
+	working. Further configuration is required.</p>
+
+	<p>For online documentation and support please refer to
+	<a href="http://nginx.org/">nginx.org</a>.<br/>
+	Commercial support is available at
+	<a href="http://nginx.com/">nginx.com</a>.</p>
+
+	<p><em>Thank you for using nginx.</em></p>
+	</body>
+	</html>
+	`
 	return text;
 }
